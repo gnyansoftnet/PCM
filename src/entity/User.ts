@@ -4,9 +4,11 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany,
 } from "typeorm";
+import { Token } from "./Token";
 
-@Entity("user")
+@Entity("tbl_01_M_P_User")
 export class User {
 
     @PrimaryGeneratedColumn()
@@ -53,4 +55,10 @@ export class User {
 
     @Column({ default: false })
     dflag!: boolean;
+
+    @Column({ nullable: true })
+    roleId?: number
+
+    @OneToMany(() => Token, (token) => token.user)
+    tokens!: Token[];
 }

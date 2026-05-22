@@ -1,68 +1,78 @@
 import { UserRepository } from "../repository/user.repository";
-import { CreateUserDTO } from "../dto/user.dto";
-import { hashPassword } from "../utils/bcrypt";
+import { comparePassword, hashPassword } from "../utils/bcrypt";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { LoginRequestDto } from "../dto/login.request.dto";
+import { LoginResponseDto } from "../dto/login.response.dto";
+import { AppError } from "../utils/app.error";
+import { AppDataSource } from "../config/database";
+import { Token } from "../entity/Token";
 
-export const createUserService = async (
-    body: CreateUserDTO
-) => {
 
-    const exists =
-        await UserRepository.findByUserCode(
-            body.userCode
-        );
+export const loginUser = async (
+    body: LoginRequestDto
+): Promise<LoginResponseDto> => {
 
-    if (exists) {
-        throw new Error("User already exists");
+
+    const user = await UserRepository.findByName(body.name);
+
+    if (user == null) {
+        throw new AppError("Incorrect username or password", 401);
     }
+    const isMatch = await comparePassword(body.password, user.password);
+    if (!isMatch) {
+        throw new AppError("Incorrect username or password", 401);
+    }
+    const payload = {
+        userId: user.userId,
+        name: user.name
+    };
+    const accessToken = generateAccessToken(payload);
 
-    const user = UserRepository.create({
-        ...body,
-        password: await hashPassword(body.password),
+    const refreshToken = generateRefreshToken(payload);
+
+    const tokenRepo =
+        AppDataSource.getRepository(Token);
+
+    await tokenRepo.save({
+        token: refreshToken,
+        user: user
     });
 
-    return await UserRepository.save(user);
-};
+    return {
+        "accessToken": accessToken,
+        "refreshToken": refreshToken,
+        user: toUserDto(user)
+    };;
+}
 
-export const getUsersService = async () => {
-    return await UserRepository.find({
-        where: { dflag: false },
-        order: { userId: "DESC" },
-    });
-};
 
-export const getUserByIdService = async (
-    id: number
-) => {
-    return await UserRepository.findOne({
-        where: { userId: id, dflag: false },
-    });
-};
 
-export const updateUserService = async (
-    id: number,
-    body: Partial<CreateUserDTO>
-) => {
-    const user = await UserRepository.findOne({
-        where: { userId: id, dflag: false },
-    });
 
-    if (!user) throw new Error("User not found");
+export const toUserDto = (user: any) => ({
+    roleId: user.roleId,
+    userId: user.userId,
+    userCode: user.userCode,
+    name: user.name,
+    fullName: user.fullName,
+    email: user.email,
+    mobile: user.mobile,
+    status: user.status,
+    orgCode: user.orgCode,
+    branchCode: user.branchCode,
+    createDate: user.createDate,
+    modifiedDate: user.modifiedDate,
 
-    UserRepository.merge(user, body);
+});
 
-    return await UserRepository.save(user);
-};
 
-export const deleteUserService = async (
-    id: number
-) => {
-    const user = await UserRepository.findOne({
-        where: { userId: id, dflag: false },
-    });
 
-    if (!user) throw new Error("User not found");
 
-    user.dflag = true;
 
-    return await UserRepository.save(user);
-};
+
+
+
+
+
+
+
+

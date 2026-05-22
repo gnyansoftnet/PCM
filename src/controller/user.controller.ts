@@ -1,77 +1,69 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
-    createUserService,
-    getUsersService,
-    getUserByIdService,
-    updateUserService,
-    deleteUserService,
+    loginUser,
+
 } from "../service/user.service";
 
-import { success, error } from "../utils/response";
+import { LoginRequestDto } from "../dto/login.request.dto";
+import { generateAccessToken, verifyRefreshToken } from "../utils/jwt";
 
-export const createUser = async (
+export const loginController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const body: LoginRequestDto = req.body;
+        const result = await loginUser(body);
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data: result
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+export const refreshTokenController = async (
     req: Request,
     res: Response
 ) => {
+
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(401).json({
+            message: "Refresh token required"
+        });
+    }
+
     try {
-        const data = await createUserService(req.body);
-        return success(res, data, "User Created");
-    } catch (err: any) {
-        return error(res, err.message);
+
+        const decoded: any =
+            verifyRefreshToken(refreshToken);
+
+        const newAccessToken =
+            generateAccessToken({
+                userId: decoded.userId,
+                name: decoded.name
+            });
+
+        return res.json({
+            accessToken: newAccessToken
+        });
+
+    } catch (err) {
+
+        return res.status(403).json({
+            message: "Invalid refresh token"
+        });
     }
 };
 
-export const getUsers = async (
-    _req: Request,
-    res: Response
-) => {
-    try {
-        const data = await getUsersService();
-        return success(res, data);
-    } catch (err: any) {
-        return error(res, err.message);
-    }
-};
 
-export const getUserById = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const data = await getUserByIdService(
-            Number(req.params.id)
-        );
-        return success(res, data);
-    } catch (err: any) {
-        return error(res, err.message);
-    }
-};
 
-export const updateUser = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const data = await updateUserService(
-            Number(req.params.id),
-            req.body
-        );
-        return success(res, data, "Updated");
-    } catch (err: any) {
-        return error(res, err.message);
-    }
-};
 
-export const deleteUser = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const data = await deleteUserService(
-            Number(req.params.id)
-        );
-        return success(res, data, "Deleted");
-    } catch (err: any) {
-        return error(res, err.message);
-    }
-};
