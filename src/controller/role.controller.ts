@@ -6,7 +6,8 @@ import {
     updateRole,
     getRoleById,
     getAllRoles,
-    deleteRole
+    deleteRole,
+    getRoleAcesstService
 } from "../service/role.service";
 import { assertValid } from "../utils/assert_valid";
 import { parseId } from "../utils/parse_id";
@@ -116,6 +117,32 @@ export const deleteRoleController = async (
         if (!roleId) return;
         await deleteRole(roleId);
         res.status(200).json({ success: true, message: "Role deleted successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+export const getRoleAcessController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        const body: {
+            roleId: number;
+            action: string
+            orgCode: string;
+        } = req.body;
+
+        const data = await getRoleAcesstService(body.orgCode, body.roleId, body.action);
+        res.status(200).json({
+            success: true,
+            data
+        });
+
     } catch (error) {
         next(error);
     }

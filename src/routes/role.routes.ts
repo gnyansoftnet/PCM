@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     createRoleController,
     getAllRolesController,
+    getRoleAcessController,
     getRoleByIdController,
     updateRoleController,
     validateCreateRole,
@@ -37,5 +38,11 @@ router.delete(
     "deleteRole/:roleId",
     authMiddleware,
     deleteRole
+);
+
+router.get(
+    "/getRoleAcess",
+    authMiddleware,
+    getRoleAcessController
 );
 export default router;

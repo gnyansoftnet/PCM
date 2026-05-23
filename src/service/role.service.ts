@@ -152,3 +152,21 @@ export const deleteRole = async (
     await roleRepo.save(role);
     return "Role deleted successfully";
 };
+
+
+
+
+export const getRoleAcesstService = async (
+    Org_Code: string,
+    roleId: number,
+    action: string,
+
+) => {
+
+    const result = await AppDataSource.query(
+        `CALL USP_M_P_RoleAccess_DTL(?, ?, ?,?,?)`,
+        [action, Org_Code, roleId, 0, 0]
+    );
+
+    return result;
+};
