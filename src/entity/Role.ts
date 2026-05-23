@@ -26,7 +26,7 @@ export class Role {
     @Column({
         name: "Org_Code",
         type: "varchar",
-        length: 5,
+
         nullable: true,
     })
     orgCode?: string;
