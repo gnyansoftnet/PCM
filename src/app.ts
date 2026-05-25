@@ -4,6 +4,8 @@ import userRoutes from "./routes/user.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 import roleRoutes from "./routes/role.routes";
 import roleaccessRoutes from "./routes/role.access.route";
+import vehicleRoute from "./routes/vehicle.route";
+import useraccessRoute from "./routes/user.access.routes";
 
 dotenv.config();
 
@@ -14,9 +16,12 @@ app.use(express.json());
 
 
 // routes
-app.use("/user", userRoutes);
-app.use("/role", roleRoutes);
-app.use("/role-access", roleaccessRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/role", roleRoutes);
+app.use("/api/role-access", roleaccessRoutes);
+app.use("/api/user-access", useraccessRoute)
+app.use("/api/vehicle", vehicleRoute);
+
 app.use((req, res) => {
     res.status(404).json({
         success: false,

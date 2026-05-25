@@ -1,12 +1,12 @@
 import { AppDataSource } from "../config/database"
-import { Orgnaisation } from "../entity/Orgnaisation";
+import { Organisation } from "../entity/Orgnaisation";
 import { Role } from "../entity/Role"
 import { User } from "../entity/User";
 import { AppError } from "../utils/app.error";
 
 
 const roleRepo = AppDataSource.getRepository(Role);
-const orgRepo = AppDataSource.getRepository(Orgnaisation);
+const orgRepo = AppDataSource.getRepository(Organisation);
 const userRepo = AppDataSource.getRepository(User);
 
 

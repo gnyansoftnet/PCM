@@ -3,7 +3,8 @@ import {
     newRoleAccess,
     roleAccessByRoleId,
     roleMenuByRoleId,
-    roleAccessAll
+    roleAccessAll,
+    saveRoleAccessData
 } from "../controller/role.access.controller";
 
 
@@ -28,6 +29,11 @@ router.post(
 router.post(
     "/all-access",
     roleAccessAll
+);
+
+router.post(
+    "/save",
+    saveRoleAccessData
 );
 
 export default router;

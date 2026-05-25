@@ -3,7 +3,8 @@ import {
     getNewRoleAccess,
     getRoleAccessByRoleId,
     getRoleMenuByRoleId,
-    getRoleAccessAll
+    getRoleAccessAll,
+    saveRoleAccess
 } from "../service/role.access.service";
 
 
@@ -131,4 +132,74 @@ export const roleAccessAll = async (
         });
 
     }
+};
+
+
+
+export const saveRoleAccessData = async (
+    req: Request,
+    res: Response
+) => {
+
+    try {
+
+        const {
+            Role_Id,
+            Org_Code,
+            Created_By,
+            Role_Access
+        } = req.body;
+
+        // VALIDATION
+
+        if (!Role_Id) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Role Id Required"
+            });
+
+        }
+
+        if (!Org_Code) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Org Code Required"
+            });
+
+        }
+
+        if (
+            !Role_Access ||
+            Role_Access.length === 0
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Role Access Empty"
+            });
+
+        }
+
+        const result = await saveRoleAccess(
+            req.body
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Role Access Saved Successfully",
+            data: result
+        });
+
+    }
+    catch (error: any) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
 };

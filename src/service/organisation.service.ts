@@ -1,10 +1,10 @@
 import { AppDataSource } from "../config/database";
-import { Orgnaisation } from "../entity/Orgnaisation";
+import { Organisation } from "../entity/Orgnaisation";
 
 export const generateOrgCode = async (): Promise<string> => {
 
     const orgRepo =
-        AppDataSource.getRepository(Orgnaisation);
+        AppDataSource.getRepository(Organisation);
 
     // get latest user
     const lastOrg = await orgRepo

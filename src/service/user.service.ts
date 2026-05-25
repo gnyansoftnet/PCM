@@ -10,12 +10,12 @@ import { UserResponseDto } from "../dto/user.response.dto";
 import { CreateUserRequestDto } from "../dto/create-user.request.dto";
 import { Role } from "../entity/Role";
 import { User } from "../entity/User";
-import { Orgnaisation } from "../entity/Orgnaisation";
+import { Organisation } from "../entity/Orgnaisation";
 import { Branch } from "../entity/Branch";
 
 const userRepo = AppDataSource.getRepository(User);
 const roleRepo = AppDataSource.getRepository(Role);
-const orgRepo = AppDataSource.getRepository(Orgnaisation);
+const orgRepo = AppDataSource.getRepository(Organisation);
 const branchRepo = AppDataSource.getRepository(Branch);
 
 export const loginUser = async (

@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 
 @Entity("tbl_01_M_Org")
-export class Orgnaisation {
+export class Organisation {
 
     @PrimaryGeneratedColumn()
     Id!: number;
