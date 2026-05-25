@@ -98,29 +98,29 @@ export const getRoleAccessAll = async (
 
 
 export const saveRoleAccess = async (
-  data: any
+    data: any
 ) => {
- 
-  const {
-    Role_Id,
-    Org_Code,
-    Created_By,
-    Role_Access
-  } = data;
- 
-const result = await AppDataSource.query(
-  `CALL USP_M_P_RoleAccess_IUD(
+
+    const {
+        Role_Id,
+        Org_Code,
+        Created_By,
+        Role_Access
+    } = data;
+
+    const result = await AppDataSource.query(
+        `CALL USP_M_P_RoleAccess_IUD(
     ?, ?, ?, ?, ?
   )`,
-  [
-    'UPDATE',
-    Role_Id,
-    Org_Code,
-    Created_By,
-    JSON.stringify(Role_Access)
-  ]
-);
- 
-  return result[0];
- 
+        [
+            'UPDATE',
+            Role_Id,
+            Org_Code,
+            Created_By,
+            JSON.stringify(Role_Access)
+        ]
+    );
+
+    return result[0];
+
 };
