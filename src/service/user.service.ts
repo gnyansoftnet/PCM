@@ -34,7 +34,10 @@ export const loginUser = async (
     }
     const payload = {
         userId: user.userId,
-        name: user.name
+        name: user.name,
+        orgCode: user.orgCode,
+        userCode: user.userCode,
+
     };
     const accessToken = generateAccessToken(payload);
 
