@@ -3,7 +3,7 @@ import { Organisation } from "../entity/Orgnaisation";
 import { Role } from "../entity/Role";
 import { User } from "../entity/User";
 import bcrypt from "bcrypt";
-import { generateOrgCode } from "../service/organisation.service";
+
 import { Branch } from "../entity/Branch";
 import { generateBranchCode } from "../service/branch.service";
 
@@ -14,9 +14,6 @@ export const seedAdminUser = async () => {
     const branchRepo = AppDataSource.getRepository(Branch);
 
 
-    // check Or create role
-
-    const orgCode = await generateOrgCode();
 
 
     let org = await orgRepo.findOne({
@@ -28,7 +25,7 @@ export const seedAdminUser = async () => {
 
     if (!org) {
         org = orgRepo.create({
-            Org_Code: orgCode,
+            Org_Code: "PCM",
             Org_Name: "PCM",
             Org_ShortName: "PCM",
             Address: "Bhubaneswar",
@@ -81,7 +78,7 @@ export const seedAdminUser = async () => {
 
     // 2. CHECK ADMIN USER
     const existingAdmin = await userRepo.findOne({
-        where: { userCode: "ADMIN001" }
+        where: { userCode: "PCM0001" }
     });
 
     if (existingAdmin) {
@@ -94,7 +91,7 @@ export const seedAdminUser = async () => {
 
     // 4. CREATE ADMIN USER WITH ROLE ID
     const admin = userRepo.create({
-        userCode: "ADMIN001",
+        userCode: "PCM0001",
         name: "admin",
         fullName: "System Admin",
         password: hashedPassword,
@@ -103,7 +100,8 @@ export const seedAdminUser = async () => {
         branchCode: branch.Branch_Code,
         email: "admin@gmail.com",
         roleId: role.roleId,
-        createdBy: "SYSTEM"
+        createdBy: "SYSTEM",
+
     });
 
     await userRepo.save(admin);
