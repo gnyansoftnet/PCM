@@ -5,7 +5,8 @@ import { User } from "../entity/User";
 import bcrypt from "bcrypt";
 
 import { Branch } from "../entity/Branch";
-import { generateBranchCode } from "../service/branch.service";
+import { generateBranchCode } from "../utils/branch.code.generation";
+
 
 export const seedAdminUser = async () => {
     const userRepo = AppDataSource.getRepository(User);
