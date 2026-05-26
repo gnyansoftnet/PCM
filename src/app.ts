@@ -9,6 +9,7 @@ import vehicleRoute from "./routes/vehicle.route";
 import useraccessRoute from "./routes/user.access.routes";
 import driverRoutes from "./routes/driverRoutes";
 import organisationRoute from "./routes/organisation.route";
+import partyRoutes from "./routes/partyRoutes";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use("/api/role-access", roleaccessRoutes);
 app.use("/api/user-access", useraccessRoute)
 app.use("/api/vehicle", vehicleRoute);
 app.use("/api", driverRoutes);
+app.use("/api/party", partyRoutes);
 
 
 app.use((req, res) => {
