@@ -8,7 +8,7 @@ const router = Router();
 const vehicleController = new VehicleController();
 const VEHICLE_PAGE_ID = 7;
 router.use(authMiddleware);
-// router.use(permissionMiddleware(VEHICLE_PAGE_ID));
+router.use(permissionMiddleware(VEHICLE_PAGE_ID));
 
 router.get("/getAllVehicles/:orgCode", vehicleController.getAllVehiclesByOrgCode.bind(vehicleController));
 router.get("/getVehicleById/:id", vehicleController.getVehicleById.bind(vehicleController));

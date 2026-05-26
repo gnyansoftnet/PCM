@@ -109,7 +109,7 @@ export const createUser = async (
     const hashedPassword = await hashPassword(
         body.password
     );
-    const userCode = await generateUserCode();
+    const userCode = await generateUserCode(existOrg.Org_Code);
 
 
     const user = userRepo.create({
@@ -293,36 +293,35 @@ export const toUserDto = (user: any) => ({
 
 
 
-export const generateUserCode = async (): Promise<string> => {
+export const generateUserCode = async (orgCode: string): Promise<string> => {
 
-    const userRepo =
-        AppDataSource.getRepository(User);
+    const userRepo = AppDataSource.getRepository(User);
 
-    // get latest user
+    // Get latest user for this org
     const lastUser = await userRepo
         .createQueryBuilder("user")
+        .where("user.userCode LIKE :code", {
+            code: `${orgCode}%`,
+        })
         .orderBy("user.userId", "DESC")
         .getOne();
 
-    // first user
+    // First user
     if (!lastUser) {
-        return "USR001";
+        return `${orgCode}0001`;
     }
 
-    // extract number
+    // Extract numeric part
     const lastCodeNumber = parseInt(
-        lastUser.userCode.replace("USR", "")
+        lastUser.userCode.replace(orgCode, "")
     );
 
-    // increment
+    // Increment number
     const newCodeNumber = lastCodeNumber + 1;
 
-    // format
-    return `USR${String(newCodeNumber).padStart(3, "0")}`;
+    // Return formatted code
+    return `${orgCode}${String(newCodeNumber).padStart(4, "0")}`;
 };
-
-
-
 
 
 

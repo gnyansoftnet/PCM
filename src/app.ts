@@ -7,6 +7,7 @@ import roleRoutes from "./routes/role.routes";
 import roleaccessRoutes from "./routes/role.access.route";
 import vehicleRoute from "./routes/vehicle.route";
 import useraccessRoute from "./routes/user.access.routes";
+import organisationRoute from "./routes/organisation.route";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(cors());
 
 // routes
 app.use("/api/user", userRoutes);
+app.use("/api/organisation", organisationRoute)
 app.use("/api/role", roleRoutes);
 app.use("/api/role-access", roleaccessRoutes);
 app.use("/api/user-access", useraccessRoute)
