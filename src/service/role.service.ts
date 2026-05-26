@@ -39,7 +39,10 @@ export const createRole = async (
         throw new AppError("Created by not found", 404);
     }
     const role = await roleRepo.findOne({
-        where: { roleName: roleName }
+        where: {
+            roleName: roleName,
+            dflag: false,
+        }
     })
     if (role) {
         throw new AppError("Role already exist", 401);
@@ -64,6 +67,7 @@ export const updateRole = async (
     const user = await userRepo.findOne({
         where: {
             userCode: modifiedBy,
+            dflag: false,
         }
     });
 
@@ -73,7 +77,7 @@ export const updateRole = async (
     }
 
     const role = await roleRepo.findOne({
-        where: { roleId }
+        where: { roleId, dflag: false, }
     });
 
     if (!role) {
@@ -83,7 +87,10 @@ export const updateRole = async (
 
         const existingRole =
             await roleRepo.findOne({
-                where: { roleName }
+                where: {
+                    dflag: false,
+                    roleName: roleName,
+                }
             });
 
         if (existingRole) {
@@ -141,7 +148,10 @@ export const deleteRole = async (
 ): Promise<string> => {
 
     const role = await roleRepo.findOne({
-        where: { roleId }
+        where: {
+            roleId: roleId,
+            dflag: false,
+        }
     });
 
     if (role == null) {

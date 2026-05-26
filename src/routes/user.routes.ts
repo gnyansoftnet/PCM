@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     createUserController,
     deleteUsersByIdController,
+    getUsersByOrgCodeController,
     loginController,
     refreshTokenController,
     updateUserController,
@@ -17,7 +18,7 @@ router.post("/loginUser", loginController);
 router.post("/refreshToken", refreshTokenController);
 router.post("/createUser", authMiddleware, createUserController);
 router.get("/deleteUserById", authMiddleware, deleteUsersByIdController);
-router.get("/getUsersByOrgCode", authMiddleware, getUsersByOrgCode);
+router.get("/getUsersByOrgCode/:orgCode", authMiddleware, getUsersByOrgCodeController);
 router.put(
     "/updateUser/:userId",
     authMiddleware,

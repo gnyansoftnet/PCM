@@ -136,7 +136,7 @@ export const getUsersByOrgCodeController = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const orgCode: string = req.body;
+        const orgCode = req.params.orgCode as string;
         const data = await getUsersByOrgCode(orgCode);
         res.status(200).json({ success: true, message: "Successfully", data });
     } catch (error) {

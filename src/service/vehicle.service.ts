@@ -25,7 +25,8 @@ export class VehicleService {
 
         const existUser = await this.userRepo.findOne({
             where: {
-                userCode: data.createdBy
+                userCode: data.createdBy,
+                dflag: false,
             }
         });
         if (existUser == null) {
@@ -34,7 +35,8 @@ export class VehicleService {
 
         const existOrg = await this.orgRepo.findOne({
             where: {
-                Org_Code: data.orgCode
+                Org_Code: data.orgCode,
+                Dflag: 0,
             }
 
         });
@@ -76,7 +78,8 @@ export class VehicleService {
 
         const existOrg = await this.orgRepo.findOne({
             where: {
-                Org_Code: data.orgCode
+                Org_Code: data.orgCode,
+                Dflag: 0,
             }
 
         });
@@ -88,7 +91,8 @@ export class VehicleService {
 
         const existUser = await this.userRepo.findOne({
             where: {
-                userCode: data.modifiedBy
+                userCode: data.modifiedBy,
+                dflag: false,
             }
         });
         if (existUser == null) {
@@ -122,6 +126,7 @@ export class VehicleService {
         const existUser = await this.userRepo.findOne({
             where: {
                 userCode: modifiedBy,
+                dflag: false,
             }
         });
         if (existUser == null) {

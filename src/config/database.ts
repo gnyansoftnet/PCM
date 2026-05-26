@@ -12,6 +12,10 @@ import { Page } from "../entity/Page";
 import { Roleaccess } from "../entity/Roleaccess";
 import { Vehicle } from "../entity/Vehicle";
 import { VehicleType } from "../entity/VehicleType";
+import { RouteMaster } from "../entity/RouteMaster";
+import { OpeningBalance } from "../entity/OpeningBalance";
+import { PeetyCashTransaction } from "../entity/PeetyCashTransaction";
+import { ExpensesHead } from "../entity/ExpensesHead";
 
 
 dotenv.config();
@@ -25,7 +29,12 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: false,
     logging: false,
-    entities: [User, Role, PageModule, Token, Organisation, Branch, Useraccess, Page, Roleaccess, Vehicle, VehicleType],
+    entities: [User, Role,
+        PageModule, Token,
+        Organisation, Branch, Useraccess, Page, Roleaccess,
+        Vehicle, VehicleType, RouteMaster, OpeningBalance, PeetyCashTransaction, ExpensesHead
+    ],
+    // entities: [ExpensesHead]
 
 });
 

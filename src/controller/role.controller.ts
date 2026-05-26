@@ -25,6 +25,9 @@ export const validateCreateRole = [
 ];
 
 export const validateUpdateRole = [
+    body("createdBy")
+        .trim()
+        .notEmpty().withMessage("createdBy need"),
     body("roleId")
         .trim()
         .notEmpty().withMessage("roleId is required"),

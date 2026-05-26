@@ -9,6 +9,11 @@ import vehicleRoute from "./routes/vehicle.route";
 import useraccessRoute from "./routes/user.access.routes";
 import driverRoutes from "./routes/driverRoutes";
 import organisationRoute from "./routes/organisation.route";
+import routeMaster from "./routes/route.master.route";
+import expenseshead from "./routes/expenses.head.route";
+
+import swaggerUi from "swagger-ui-express";        // ✅ Add this
+import { swaggerSpec } from "./config/swagger";
 
 dotenv.config();
 
@@ -17,7 +22,7 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(cors());
-
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // routes
 app.use("/api/user", userRoutes);
@@ -26,7 +31,9 @@ app.use("/api/role", roleRoutes);
 app.use("/api/role-access", roleaccessRoutes);
 app.use("/api/user-access", useraccessRoute)
 app.use("/api/vehicle", vehicleRoute);
+app.use("/api/route", routeMaster);
 app.use("/api", driverRoutes);
+app.use("/api/expenseshead", expenseshead);
 
 
 app.use((req, res) => {

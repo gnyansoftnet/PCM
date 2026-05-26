@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
     createRoleController,
+    deleteRoleController,
     getAllRolesController,
     getRoleAcessController,
     getRoleByIdController,
@@ -8,7 +9,6 @@ import {
     validateCreateRole,
     validateUpdateRole
 } from "../controller/role.controller";
-import { deleteRole, getAllRoles } from "../service/role.service";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 
@@ -37,9 +37,9 @@ router.get(
     getAllRolesController
 );
 router.delete(
-    "deleteRole/:roleId",
+    "/deleteRole/:roleId",
     authMiddleware,
-    deleteRole
+    deleteRoleController
 );
 
 router.get(
