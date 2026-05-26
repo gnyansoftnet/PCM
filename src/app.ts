@@ -12,8 +12,9 @@ import organisationRoute from "./routes/organisation.route";
 import routeMaster from "./routes/route.master.route";
 import expenseshead from "./routes/expenses.head.route";
 
-import swaggerUi from "swagger-ui-express";        // ✅ Add this
+import swaggerUi from "swagger-ui-express";        
 import { swaggerSpec } from "./config/swagger";
+import partyRoutes from "./routes/partyRoutes";
 
 dotenv.config();
 
@@ -32,8 +33,9 @@ app.use("/api/role-access", roleaccessRoutes);
 app.use("/api/user-access", useraccessRoute)
 app.use("/api/vehicle", vehicleRoute);
 app.use("/api/route", routeMaster);
-app.use("/api", driverRoutes);
+app.use("/api/driver", driverRoutes);
 app.use("/api/expenseshead", expenseshead);
+app.use("/api/party", partyRoutes);
 
 
 app.use((req, res) => {
