@@ -12,260 +12,266 @@ import { Role } from "../entity/Role";
 import { User } from "../entity/User";
 import { Organisation } from "../entity/Orgnaisation";
 import { Branch } from "../entity/Branch";
+import { Repository } from "typeorm";
+import { generateUserCode } from "../utils/user.code.generation";
 
 const userRepo = AppDataSource.getRepository(User);
 const roleRepo = AppDataSource.getRepository(Role);
 const orgRepo = AppDataSource.getRepository(Organisation);
 const branchRepo = AppDataSource.getRepository(Branch);
 
-export const loginUser = async (
-    body: LoginRequestDto
-): Promise<LoginResponseDto> => {
 
 
-    const user = await UserRepository.findByName(body.name);
-
-    if (user == null) {
-        throw new AppError("Incorrect username or password", 401);
+export class UserService {
+    private orgRepo: Repository<Organisation>;
+    private userRepo: Repository<User>;
+    constructor() {
+        this.orgRepo = AppDataSource.getRepository(Organisation);
+        this.userRepo = AppDataSource.getRepository(User);
     }
-    const isMatch = await comparePassword(body.password, user.password);
-    if (!isMatch) {
-        throw new AppError("Incorrect username or password", 401);
+
+    async loginUser(body: LoginRequestDto): Promise<LoginResponseDto> {
+        const user = await UserRepository.findByName(body.name);
+
+        if (user == null) {
+            throw new AppError("Incorrect username or password", 401);
+        }
+        const isMatch = await comparePassword(body.password, user.password);
+        if (!isMatch) {
+            throw new AppError("Incorrect username or password", 401);
+        }
+        const payload = {
+            userId: user.userId,
+            name: user.name,
+            orgCode: user.orgCode,
+            userCode: user.userCode,
+            branchCode: user.branchCode,
+
+        };
+        const accessToken = generateAccessToken(payload);
+
+        const refreshToken = generateRefreshToken(payload);
+
+        const tokenRepo =
+            AppDataSource.getRepository(Token);
+
+        await tokenRepo.save({
+            token: refreshToken,
+            user: user
+        });
+
+        return {
+            "accessToken": accessToken,
+            "refreshToken": refreshToken,
+            user: toUserDto(user)
+        };;
     }
-    const payload = {
-        userId: user.userId,
-        name: user.name,
-        orgCode: user.orgCode,
-        userCode: user.userCode,
-        branchCode: user.branchCode,
 
-    };
-    const accessToken = generateAccessToken(payload);
+    async createUser(body: CreateUserRequestDto): Promise<UserResponseDto> {
 
-    const refreshToken = generateRefreshToken(payload);
+        const existingUser = await userRepo.findOne({
+            where: {
+                name: body.name
+            }
+        });
+        if (existingUser) {
+            throw new AppError("Username already exists", 401);
+        }
 
-    const tokenRepo =
-        AppDataSource.getRepository(Token);
+        const existRole = await roleRepo.findOne({
+            where: {
+                roleId: body.userType
+            }
+        })
 
-    await tokenRepo.save({
-        token: refreshToken,
-        user: user
-    });
+        if (existRole == null) {
+            throw new AppError("User type not found", 402);
+        }
 
-    return {
-        "accessToken": accessToken,
-        "refreshToken": refreshToken,
-        user: toUserDto(user)
-    };;
+
+        const existOrg = await orgRepo.findOne({
+            where: {
+                Org_Code: body.orgCode
+            }
+        })
+
+        if (existOrg == null) {
+            throw new AppError("organisation not found", 402);
+        }
+
+
+        const existBranch = await branchRepo.findOne({
+            where: {
+                Branch_Code: body.branchCode
+            }
+        })
+
+        if (existBranch == null) {
+            throw new AppError("Branch not found", 402);
+        }
+
+
+        const hashedPassword = await hashPassword(
+            body.password
+        );
+        const userCode = await generateUserCode(existOrg.Org_Code);
+
+
+        const user = userRepo.create({
+            roleId: body.userType,
+            userCode: userCode,
+            name: body.name,
+            fullName: body.fullName,
+            password: hashedPassword,
+            orgCode: body.orgCode,
+            branchCode: body.branchCode,
+            mobile: body.mobile,
+            email: body.email,
+
+        });
+
+        const savedUser = await userRepo.save(user);
+
+        return {
+            userId: savedUser.userId,
+            userCode: savedUser.userCode,
+            name: savedUser.name,
+            fullName: savedUser.fullName,
+            email: savedUser.email,
+            mobile: savedUser.mobile,
+            status: savedUser.status,
+            orgCode: savedUser.orgCode,
+            branchCode: savedUser.branchCode,
+            createDate: savedUser.createDate,
+            modifiedDate: savedUser.modifiedDate,
+            roleId: savedUser.roleId!,
+        };
+
+
+    }
+
+    async updateUser(
+        userId: number,
+        body: CreateUserRequestDto
+    ): Promise<UserResponseDto> {
+        const user = await userRepo.findOne({
+            where: { userId }
+        });
+
+        if (!user) {
+            throw new AppError("User not found", 404);
+        }
+
+        const existingUser = await userRepo.findOne({
+            where: {
+                name: body.name
+            }
+        });
+
+        if (existingUser && existingUser.userId !== userId) {
+            throw new AppError("Username already exists", 401);
+        }
+
+        const existRole = await roleRepo.findOne({
+            where: {
+                roleId: body.userType
+            }
+        });
+
+        if (!existRole) {
+            throw new AppError("User type not found", 402);
+        }
+
+        const existOrg = await orgRepo.findOne({
+            where: {
+                Org_Code: body.orgCode
+            }
+        });
+
+        if (!existOrg) {
+            throw new AppError("Organisation not found", 402);
+        }
+
+        const existBranch = await branchRepo.findOne({
+            where: {
+                Branch_Code: body.branchCode
+            }
+        });
+
+        if (!existBranch) {
+            throw new AppError("Branch not found", 402);
+        }
+
+        user.roleId = body.userType;
+        user.name = body.name;
+        user.fullName = body.fullName;
+        user.orgCode = body.orgCode;
+        user.branchCode = body.branchCode;
+        user.mobile = body.mobile;
+        user.email = body.email;
+
+        // update password only if provided
+        if (body.password) {
+            user.password = await hashPassword(body.password);
+        }
+
+        const updatedUser = await userRepo.save(user);
+
+        return {
+            userId: updatedUser.userId,
+            userCode: updatedUser.userCode,
+            name: updatedUser.name,
+            fullName: updatedUser.fullName,
+            email: updatedUser.email,
+            mobile: updatedUser.mobile,
+            status: updatedUser.status,
+            orgCode: updatedUser.orgCode,
+            branchCode: updatedUser.branchCode,
+            createDate: updatedUser.createDate,
+            modifiedDate: updatedUser.modifiedDate,
+            roleId: updatedUser.roleId!,
+        };
+
+    }
+
+    async getUsersByOrgCode(orgCode: string) {
+        return await userRepo.find({
+            where: {
+                orgCode: orgCode,
+                dflag: false,
+            }
+        });
+
+    }
+    async getUsersById(userId: number) {
+        return await userRepo.find({
+            where: {
+                userId: userId,
+                dflag: false,
+            }
+        });
+
+    }
+
+    async deleteUser(userId: number): Promise<string> {
+        const user = await userRepo.findOne({
+            where: {
+                userId,
+            }
+        });
+
+        if (user == null) {
+            throw new AppError("User not found", 404);
+        }
+
+        user.dflag = true;
+        await roleRepo.save(user);
+        return "User deleted successfully";
+    }
 
 
 }
 
-export const createUser = async (
-    body: CreateUserRequestDto
-): Promise<UserResponseDto> => {
-
-    const existingUser = await userRepo.findOne({
-        where: {
-            name: body.name
-        }
-    });
-    if (existingUser) {
-        throw new AppError("Username already exists", 401);
-    }
-
-    const existRole = await roleRepo.findOne({
-        where: {
-            roleId: body.userType
-        }
-    })
-
-    if (existRole == null) {
-        throw new AppError("User type not found", 402);
-    }
-
-
-    const existOrg = await orgRepo.findOne({
-        where: {
-            Org_Code: body.orgCode
-        }
-    })
-
-    if (existOrg == null) {
-        throw new AppError("organisation not found", 402);
-    }
-
-
-    const existBranch = await branchRepo.findOne({
-        where: {
-            Branch_Code: body.branchCode
-        }
-    })
-
-    if (existBranch == null) {
-        throw new AppError("Branch not found", 402);
-    }
-
-
-    const hashedPassword = await hashPassword(
-        body.password
-    );
-    const userCode = await generateUserCode(existOrg.Org_Code);
-
-
-    const user = userRepo.create({
-        roleId: body.userType,
-        userCode: userCode,
-        name: body.name,
-        fullName: body.fullName,
-        password: hashedPassword,
-        orgCode: body.orgCode,
-        branchCode: body.branchCode,
-        mobile: body.mobile,
-        email: body.email,
-
-    });
-
-    const savedUser = await userRepo.save(user);
-
-    return {
-        userId: savedUser.userId,
-        userCode: savedUser.userCode,
-        name: savedUser.name,
-        fullName: savedUser.fullName,
-        email: savedUser.email,
-        mobile: savedUser.mobile,
-        status: savedUser.status,
-        orgCode: savedUser.orgCode,
-        branchCode: savedUser.branchCode,
-        createDate: savedUser.createDate,
-        modifiedDate: savedUser.modifiedDate,
-        roleId: savedUser.roleId!,
-    };
-
-};
-
-
-export const updateUser = async (
-    userId: number,
-    body: CreateUserRequestDto
-): Promise<UserResponseDto> => {
-
-    const user = await userRepo.findOne({
-        where: { userId }
-    });
-
-    if (!user) {
-        throw new AppError("User not found", 404);
-    }
-
-    const existingUser = await userRepo.findOne({
-        where: {
-            name: body.name
-        }
-    });
-
-    if (existingUser && existingUser.userId !== userId) {
-        throw new AppError("Username already exists", 401);
-    }
-
-    const existRole = await roleRepo.findOne({
-        where: {
-            roleId: body.userType
-        }
-    });
-
-    if (!existRole) {
-        throw new AppError("User type not found", 402);
-    }
-
-    const existOrg = await orgRepo.findOne({
-        where: {
-            Org_Code: body.orgCode
-        }
-    });
-
-    if (!existOrg) {
-        throw new AppError("Organisation not found", 402);
-    }
-
-    const existBranch = await branchRepo.findOne({
-        where: {
-            Branch_Code: body.branchCode
-        }
-    });
-
-    if (!existBranch) {
-        throw new AppError("Branch not found", 402);
-    }
-
-    user.roleId = body.userType;
-    user.name = body.name;
-    user.fullName = body.fullName;
-    user.orgCode = body.orgCode;
-    user.branchCode = body.branchCode;
-    user.mobile = body.mobile;
-    user.email = body.email;
-
-    // update password only if provided
-    if (body.password) {
-        user.password = await hashPassword(body.password);
-    }
-
-    const updatedUser = await userRepo.save(user);
-
-    return {
-        userId: updatedUser.userId,
-        userCode: updatedUser.userCode,
-        name: updatedUser.name,
-        fullName: updatedUser.fullName,
-        email: updatedUser.email,
-        mobile: updatedUser.mobile,
-        status: updatedUser.status,
-        orgCode: updatedUser.orgCode,
-        branchCode: updatedUser.branchCode,
-        createDate: updatedUser.createDate,
-        modifiedDate: updatedUser.modifiedDate,
-        roleId: updatedUser.roleId!,
-    };
-};
-
-
-export const getUsersByOrgCode = async (orgCode: string) => {
-    return await userRepo.find({
-        where: {
-            orgCode: orgCode,
-            dflag: false,
-        }
-    });
-};
-export const getUsersById = async (userId: number) => {
-    return await userRepo.find({
-        where: {
-            userId: userId,
-            dflag: false,
-        }
-    });
-};
-
-export const deleteUser = async (
-    userId: number
-): Promise<string> => {
-
-    const user = await userRepo.findOne({
-        where: {
-            userId,
-        }
-    });
-
-    if (user == null) {
-        throw new AppError("User not found", 404);
-    }
-
-    user.dflag = true;
-    await roleRepo.save(user);
-    return "User deleted successfully";
-};
 
 
 
@@ -294,35 +300,7 @@ export const toUserDto = (user: any) => ({
 
 
 
-export const generateUserCode = async (orgCode: string): Promise<string> => {
 
-    const userRepo = AppDataSource.getRepository(User);
-
-    // Get latest user for this org
-    const lastUser = await userRepo
-        .createQueryBuilder("user")
-        .where("user.userCode LIKE :code", {
-            code: `${orgCode}%`,
-        })
-        .orderBy("user.userId", "DESC")
-        .getOne();
-
-    // First user
-    if (!lastUser) {
-        return `${orgCode}0001`;
-    }
-
-    // Extract numeric part
-    const lastCodeNumber = parseInt(
-        lastUser.userCode.replace(orgCode, "")
-    );
-
-    // Increment number
-    const newCodeNumber = lastCodeNumber + 1;
-
-    // Return formatted code
-    return `${orgCode}${String(newCodeNumber).padStart(4, "0")}`;
-};
 
 
 

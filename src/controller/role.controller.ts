@@ -1,152 +1,122 @@
 import { Request, Response, NextFunction } from "express";
-import { body, param, validationResult } from "express-validator";
+import { RoleService } from "../service/role.service";
 
-import {
-    createRole,
-    updateRole,
-    getRoleById,
-    getAllRoles,
-    deleteRole,
-    getRoleAcesstService
-} from "../service/role.service";
-import { assertValid } from "../utils/assert_valid";
-import { parseId } from "../utils/parse_id";
+const roleService = new RoleService();
 
+export class RoleController {
 
+    async createRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { roleName, orgCode, createdBy } = req.body;
 
-export const validateCreateRole = [
-    body("roleName")
-        .trim()
-        .notEmpty().withMessage("roleName is required")
-        .isLength({ min: 2, max: 50 }).withMessage("roleName must be 2–50 characters"),
-    body("orgCode")
-        .trim()
-        .notEmpty().withMessage("orgCode is required"),
-];
-
-export const validateUpdateRole = [
-    body("createdBy")
-        .trim()
-        .notEmpty().withMessage("createdBy need"),
-    body("roleId")
-        .trim()
-        .notEmpty().withMessage("roleId is required"),
-    body("roleName")
-        .optional()
-        .trim()
-        .isLength({ min: 2, max: 50 }).withMessage("roleName must be 2–50 characters"),
-];
-
-export const createRoleController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        assertValid(req);
-        const { roleName, orgCode, createdBy } = req.body;
-        const data = await createRole(roleName, orgCode, createdBy);
-        res.status(201).json({ success: true, message: "Role created successfully", data });
-    } catch (error) {
-        next(error);
+            const role = await roleService.createRole(roleName, orgCode, createdBy);
+            res.status(201).json({
+                success: true,
+                message: "Role created successfully.",
+                data: role,
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
-export const updateRoleController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
+    async updateRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const roleId = parseInt(req.params.id as string);
+            if (isNaN(roleId)) {
+                res.status(400).json({ success: false, message: "Invalid role ID." });
+                return;
+            }
 
-): Promise<void> => {
-    try {
+            const { modifiedBy, roleName, orgCode } = req.body;
 
-        assertValid(req);
-        const body: {
-            roleId: number;
-            modifiedBy: string;
-            roleName?: string;
-            orgCode?: string;
-        } = req.body;
-
-
-        const data = await updateRole(body.roleId, body.modifiedBy, body.roleName, body.orgCode);
-
-        res.status(200).json({
-            success: true,
-            message: "Role updated successfully",
-            data
-        });
-
-    } catch (error) {
-        next(error);
+            const role = await roleService.updateRole(roleId, modifiedBy, roleName, orgCode);
+            res.status(200).json({
+                success: true,
+                message: "Role updated successfully.",
+                data: role,
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
-export const getRoleByIdController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const roleId = parseId(req.params.roleId, next);
-        if (!roleId) return;
-        const data = await getRoleById(roleId);
-        res.status(200).json({ success: true, data });
-    } catch (error) {
-        next(error);
+    async deleteRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const roleId = parseInt(req.params.id as string);
+            if (isNaN(roleId)) {
+                res.status(400).json({ success: false, message: "Invalid role ID." });
+                return;
+            }
+
+            const result = await roleService.deleteRole(roleId);
+            res.status(200).json({
+                success: true,
+                message: result,
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
-export const getAllRolesController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const data = await getAllRoles();
-        res.status(200).json({ success: true, data });
-    } catch (error) {
-        next(error);
+    async getRoleById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const roleId = parseInt(req.params.id as string);
+            if (isNaN(roleId)) {
+                res.status(400).json({ success: false, message: "Invalid role ID." });
+                return;
+            }
+
+            const role = await roleService.getRoleById(roleId);
+            res.status(200).json({
+                success: true,
+                data: role,
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
-export const deleteRoleController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const roleId = parseId(req.params.roleId, next);
-        if (!roleId) return;
-        await deleteRole(roleId);
-        res.status(200).json({ success: true, message: "Role deleted successfully" });
-    } catch (error) {
-        next(error);
+    async getAllRoles(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const roles = await roleService.getAllRoles();
+            res.status(200).json({
+                success: true,
+                count: roles.length,
+                data: roles,
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
+    async getRoleAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const orgCode = req.params.orgCode as string;
+            if (!orgCode) {
+                res.status(400).json({ success: false, message: "orgCode is required." });
+                return;
+            }
 
+            const roleId = parseInt(req.params.roleId as string);
+            if (isNaN(roleId)) {
+                res.status(400).json({ success: false, message: "Invalid role ID." });
+                return;
+            }
 
+            const action = req.params.action as string;
+            if (!action) {
+                res.status(400).json({ success: false, message: "action is required." });
+                return;
+            }
 
-export const getRoleAcessController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
-    try {
-        const body: {
-            roleId: number;
-            action: string
-            orgCode: string;
-        } = req.body;
-
-        const data = await getRoleAcesstService(body.orgCode, body.roleId, body.action);
-        res.status(200).json({
-            success: true,
-            data
-        });
-
-    } catch (error) {
-        next(error);
+            const result = await roleService.getRoleAccessService(orgCode, roleId, action);
+            res.status(200).json({
+                success: true,
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
+}

@@ -1,165 +1,133 @@
 import { NextFunction, Request, Response } from "express";
-import {
-    createUser,
-    deleteUser,
-    getUsersById,
-    getUsersByOrgCode,
-    loginUser,
-    updateUser,
-
-} from "../service/user.service";
-
+import { UserService } from "../service/user.service";
 import { LoginRequestDto } from "../dto/login.request.dto";
-import { generateAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { CreateUserRequestDto } from "../dto/create-user.request.dto";
+import { generateAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { parseId } from "../utils/parse_id";
 
-export const loginController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const body: LoginRequestDto = req.body;
-        const result = await loginUser(body);
-        return res.status(200).json({
-            success: true,
-            message: "Login successful",
-            data: result
-        });
+const userService = new UserService();
 
-    } catch (error) {
-        next(error);
-    }
-};
+export class UserController {
 
-
-
-export const refreshTokenController = async (
-    req: Request,
-    res: Response
-) => {
-
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-        return res.status(401).json({
-            message: "Refresh token required"
-        });
+    async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const body: LoginRequestDto = req.body;
+            const result = await userService.loginUser(body);
+            res.status(200).json({
+                success: true,
+                message: "Login successful",
+                data: result
+            });
+        } catch (error) {
+            next(error);
+        }
     }
 
-    try {
+    async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { refreshToken } = req.body;
+            if (!refreshToken) {
+                res.status(401).json({ success: false, message: "Refresh token required" });
+                return;
+            }
 
-        const decoded: any =
-            verifyRefreshToken(refreshToken);
-
-        const newAccessToken =
-            generateAccessToken({
+            const decoded: any = verifyRefreshToken(refreshToken);
+            const newAccessToken = generateAccessToken({
                 userId: decoded.userId,
                 name: decoded.name
             });
 
-        return res.json({
-            accessToken: newAccessToken
-        });
-
-    } catch (err) {
-
-        return res.status(403).json({
-            message: "Invalid refresh token"
-        });
+            res.status(200).json({
+                success: true,
+                data: { accessToken: newAccessToken }
+            });
+        } catch (error) {
+            res.status(403).json({ success: false, message: "Invalid refresh token" });
+        }
     }
-};
 
-
-
-
-export const createUserController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const body: CreateUserRequestDto = req.body;
-        const data = await createUser(body);
-        res.status(201).json({ success: true, message: "User created successfully", data });
-    } catch (error) {
-        next(error);
+    async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const body: CreateUserRequestDto = req.body;
+            const data = await userService.createUser(body);
+            res.status(201).json({
+                success: true,
+                message: "User created successfully",
+                data
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
+    async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = parseInt(req.params.userId as string);
+            if (isNaN(userId)) {
+                res.status(400).json({ success: false, message: "Invalid user ID." });
+                return;
+            }
 
-export const updateUserController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-
-        const userId = Number(req.params.userId);
-
-        const body: CreateUserRequestDto = req.body;
-
-        const data = await updateUser(userId, body);
-
-        res.status(200).json({
-            success: true,
-            message: "User updated successfully",
-            data
-        });
-
-    } catch (error) {
-        next(error);
+            const body: CreateUserRequestDto = req.body;
+            const data = await userService.updateUser(userId, body);
+            res.status(200).json({
+                success: true,
+                message: "User updated successfully",
+                data
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
+    async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = parseId(req.params.userId, next);
+            if (!userId) return;
 
-
-
-export const getUsersByIdController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const userId = parseId(req.params.userId, next);
-        if (!userId) return;
-        const data = await getUsersById(userId);
-        res.status(201).json({ success: true, message: "User created successfully", data });
-    } catch (error) {
-        next(error);
+            const data = await userService.getUsersById(userId);
+            res.status(200).json({
+                success: true,
+                message: "User fetched successfully",
+                data
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
-export const getUsersByOrgCodeController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const orgCode = req.params.orgCode as string;
-        const data = await getUsersByOrgCode(orgCode);
-        res.status(200).json({ success: true, message: "Successfully", data });
-    } catch (error) {
-        next(error);
+
+    async getUsersByOrgCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const orgCode = req.params.orgCode as string;
+            if (!orgCode) {
+                res.status(400).json({ success: false, message: "orgCode is required." });
+                return;
+            }
+
+            const data = await userService.getUsersByOrgCode(orgCode);
+            res.status(200).json({
+                success: true,
+                message: "Successfully",
+                data
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
 
+    async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = parseId(req.params.userId, next);
+            if (!userId) return;
 
-export const deleteUsersByIdController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        const userId = parseId(req.params.userId, next);
-        if (!userId) return;
-        const data = await deleteUser(userId);
-        res.status(200).json({ success: true, message: "User delete successfully", data });
-    } catch (error) {
-        next(error);
+            const data = await userService.deleteUser(userId);
+            res.status(200).json({
+                success: true,
+                message: "User deleted successfully",
+                data
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-};
-
-
-
-
+}

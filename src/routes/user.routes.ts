@@ -1,30 +1,19 @@
 import { Router } from "express";
-import {
-    createUserController,
-    deleteUsersByIdController,
-    getUsersByOrgCodeController,
-    loginController,
-    refreshTokenController,
-    updateUserController,
-
-} from "../controller/user.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
-import { getUsersByOrgCode } from "../service/user.service";
+import { permissionMiddleware } from "../middleware/permission.middleware";
+import { UserController } from "../controller/user.controller";
 
 
 const router = Router();
+const userController = new UserController();
+const VEHICLE_PAGE_ID = 7;
+router.use(authMiddleware);
+router.use(permissionMiddleware(VEHICLE_PAGE_ID));
 
-router.post("/loginUser", loginController);
-router.post("/refreshToken", refreshTokenController);
-router.post("/createUser", authMiddleware, createUserController);
-router.get("/deleteUserById", authMiddleware, deleteUsersByIdController);
-router.get("/getUsersByOrgCode/:orgCode", authMiddleware, getUsersByOrgCodeController);
-router.put(
-    "/updateUser/:userId",
-    authMiddleware,
-    updateUserController
-);
-
-
+router.get("/getUsersByOrgCode/:orgCode", userController.getUsersByOrgCode.bind(userController));
+router.get("/getVehicleById/:id", userController.getUserById.bind(userController));
+router.post("/createUser", userController.createUser.bind(userController));
+router.put("/updateUser/:userId", userController.updateUser.bind(userController));
+router.delete("/deleteUserById/:id", userController.deleteUser.bind(userController));
 
 export default router;
