@@ -6,6 +6,7 @@ import roleRoutes from "./routes/role.routes";
 import roleaccessRoutes from "./routes/role.access.route";
 import vehicleRoute from "./routes/vehicle.route";
 import useraccessRoute from "./routes/user.access.routes";
+import driverRoutes from "./routes/driverRoutes";
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ app.use("/api/role", roleRoutes);
 app.use("/api/role-access", roleaccessRoutes);
 app.use("/api/user-access", useraccessRoute)
 app.use("/api/vehicle", vehicleRoute);
+app.use("/api", driverRoutes);
+
 
 app.use((req, res) => {
     res.status(404).json({
