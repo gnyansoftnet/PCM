@@ -1,4 +1,4 @@
-import { UserRepository } from "../repository/user.repository";
+
 import { comparePassword, hashPassword } from "../utils/bcrypt";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { LoginRequestDto } from "../dto/login.request.dto";
@@ -14,6 +14,7 @@ import { Organisation } from "../entity/Orgnaisation";
 import { Branch } from "../entity/Branch";
 import { Repository } from "typeorm";
 import { generateUserCode } from "../utils/user.code.generation";
+import { UserStatus } from "../enums/user.status.enum";
 
 const userRepo = AppDataSource.getRepository(User);
 const roleRepo = AppDataSource.getRepository(Role);
@@ -31,7 +32,13 @@ export class UserService {
     }
 
     async loginUser(body: LoginRequestDto): Promise<LoginResponseDto> {
-        const user = await UserRepository.findByName(body.name);
+        const user = await userRepo.findOne({
+            where: {
+                name: body.name,
+                dflag: false,
+                status: UserStatus.Active
+            }
+        });
 
         if (user == null) {
             throw new AppError("Incorrect username or password", 401);
@@ -127,6 +134,7 @@ export class UserService {
             branchCode: body.branchCode,
             mobile: body.mobile,
             email: body.email,
+            status: body.status,
 
         });
 

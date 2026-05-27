@@ -20,6 +20,14 @@ router.post(
     "/by-role-id",
     roleAccessByRoleId
 );
+router.post(
+    "/by-role-id",
+    roleAccessByRoleId
+);
+router.post(
+    "/by-role-id",
+    roleAccessByRoleId
+);
 
 router.post(
     "/menu-by-role",

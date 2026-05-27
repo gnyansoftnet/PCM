@@ -7,11 +7,11 @@ import roleRoutes from "./routes/role.routes";
 import roleaccessRoutes from "./routes/role.access.route";
 import vehicleRoute from "./routes/vehicle.route";
 import useraccessRoute from "./routes/user.access.routes";
-import driverRoutes from "./routes/driverRoutes";
+import driverRoutes from "./routes/driver.routes";
 import organisationRoute from "./routes/organisation.route";
 import routeMasterRoute from "./routes/route.master.route";
 import expensesHeadRoute from "./routes/expenses.head.route";
-import partyRoutes from "./routes/partyRoutes";
+import partyRoutes from "./routes/party.routes";
 import authRoute from "./routes/auth.route";
 
 dotenv.config();

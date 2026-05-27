@@ -96,7 +96,7 @@ export const seedAdminUser = async () => {
         name: "admin",
         fullName: "System Admin",
         password: hashedPassword,
-        status: "ACTIVE",
+        status: "Active",
         orgCode: org.Org_Code,
         branchCode: branch.Branch_Code,
         email: "admin@gmail.com",

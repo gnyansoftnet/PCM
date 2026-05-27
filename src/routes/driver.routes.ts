@@ -9,7 +9,7 @@ import {
     postDriver,
     editDriver,
     deleteDriver
-} from "../controller/driverController";
+} from "../controller/driver.controller";
 
 const router = express.Router();
 

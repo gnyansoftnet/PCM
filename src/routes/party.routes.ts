@@ -6,7 +6,7 @@ import {
     getPartyList,
     getPartyById,
     deleteParty
-} from "../controller/partyController";
+} from "../controller/party.controller";
 
 const router = express.Router();
 router.use(authMiddleware);

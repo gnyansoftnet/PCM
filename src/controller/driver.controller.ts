@@ -6,7 +6,7 @@ import {
     createDriverService,
     updateDriverService,
     deleteDriverService
-} from "../service/driverService";
+} from "../service/driver.service";
 
 
 

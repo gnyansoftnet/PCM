@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as partyService from "../service/partyService";
+import * as partyService from "../service/party.service";
 
 export const saveParty = async (req: Request, res: Response) => {
 

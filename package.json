@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn src/server.ts",
-    "swagger": "ts-node swagger.autogen.ts"
+    "dev": "ts-node-dev --respawn src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,9 +20,6 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.22.3",
     "reflect-metadata": "^0.2.2",
-    "swagger-autogen": "^2.23.7",
-    "swagger-jsdoc": "^6.3.0",
-    "swagger-ui-express": "^5.0.1",
     "typeorm": "^1.0.0"
   },
   "devDependencies": {

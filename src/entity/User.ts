@@ -7,6 +7,7 @@ import {
     OneToMany,
 } from "typeorm";
 import { Token } from "./Token";
+import { UserStatus } from "../enums/user.status.enum";
 
 @Entity("tbl_01_M_P_User")
 export class User {
@@ -26,7 +27,7 @@ export class User {
     @Column()
     password!: string;
 
-    @Column({ default: "ACTIVE" })
+    @Column({ default: UserStatus.Active, type: "enum", enum: UserStatus })
     status!: string;
 
     @Column()
