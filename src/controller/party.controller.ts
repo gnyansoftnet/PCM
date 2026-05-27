@@ -1,112 +1,148 @@
 import { Request, Response } from "express";
-import * as partyService from "../service/party.service";
+import { PartyService } from "../service/party.service";
 
-export const saveParty = async (req: Request, res: Response) => {
+const partyService = new PartyService();
 
-    try {
+export class PartyController {
 
-        const result = await partyService.saveParty(req.body);
+    /* ---------------- CREATE ---------------- */
 
-        if (!result.success) {
-            return res.status(400).json({
+    createParty = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+
+        try {
+
+            const result =
+                await partyService.createParty(req.body);
+
+            res.status(201).json({
+                success: true,
+                message: "Party Created Successfully",
+                data: result
+            });
+
+        } catch (error: any) {
+
+            res.status(error.statusCode || 500).json({
                 success: false,
-                message: result.message
+                message: error.message
             });
         }
+    };
 
-         return res.status(200).json({
-            success: true,
-            message: result.message
-        });
-  
+    /* ---------------- GET LIST ---------------- */
 
-    } catch (error: any) {
+    getPartyList = async (
+        _req: Request,
+        res: Response
+    ): Promise<void> => {
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        try {
 
-    }
-};
+            const result =
+                await partyService.getPartyList();
 
-export const getPartyList = async (_req: Request, res: Response) => {
+            res.status(200).json({
+                success: true,
+                data: result
+            });
 
-    try {
+        } catch (error: any) {
 
-        const data = await partyService.getPartyList();
-
-        return res.status(200).json({
-            success: true,
-            data: data   
-        });
-
-    } catch (error: any) {
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
-
-export const getPartyById = async (req: Request, res: Response) => {
-
-    try {
-
-        const id = Number(req.params.id);
-
-        const result = await partyService.getPartyById(id);
-       
-        if (!result.success) {
-            return res.status(400).json({
+            res.status(500).json({
                 success: false,
-                message: result.message
+                message: error.message
             });
         }
+    };
 
-        if (!result.data || result.data.length === 0) {
-            return res.status(404).json({
+    /* ---------------- GET BY ID ---------------- */
+
+    getPartyById = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            const result =
+                await partyService.getPartyById(id);
+
+            res.status(200).json({
+                success: true,
+                data: result
+            });
+
+        } catch (error: any) {
+
+            res.status(error.statusCode || 500).json({
                 success: false,
-                message: "No Data Found"
+                message: error.message
             });
         }
-        return res.status(200).json({
-            success: true,
-            data: result.data
-        });
+    };
 
-    } catch (error: any) {
+    /* ---------------- UPDATE ---------------- */
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+    updateParty = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
 
-export const deleteParty = async (req: Request, res: Response) => {
+        try {
 
-    try {
+            const id = Number(req.params.id);
 
-        const id = Number(req.params.id);
+            const result =
+                await partyService.updateParty(
+                    id,
+                    req.body
+                );
 
-        const result = await partyService.deleteParty(id);
-     
-        if (!result.success) {
-            return res.status(400).json(result);
+            res.status(200).json({
+                success: true,
+                message: "Party Updated Successfully",
+                data: result
+            });
+
+        } catch (error: any) {
+
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message
+            });
         }
+    };
 
-        return res.status(200).json({
-            success: true,
-            message: result.message
-        });
+    /* ---------------- DELETE ---------------- */
 
-    } catch (error: any) {
+    deleteParty = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+        try {
+
+            const id = Number(req.params.id);
+
+            const result =
+                await partyService.deleteParty(id);
+
+            res.status(200).json({
+                success: true,
+                ...result
+            });
+
+        } catch (error: any) {
+
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };
+}

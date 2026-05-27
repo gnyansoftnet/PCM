@@ -1,22 +1,32 @@
-import express from "express";
+import { Router } from "express";
+
+import { PartyController } from "../controller/party.controller";
+
 import { authMiddleware } from "../middleware/auth.middleware";
 
-import {
-    saveParty,
-    getPartyList,
-    getPartyById,
-    deleteParty
-} from "../controller/party.controller";
+import { permissionMiddleware } from "../middleware/permission.middleware";
 
-const router = express.Router();
+const router = Router();
+
+const partyController = new PartyController();
+
+const PARTY_PAGE_ID = 17;
+
+/* ---------------- MIDDLEWARE ---------------- */
+
 router.use(authMiddleware);
 
-router.post("/SaveParty", saveParty);
+//router.use(permissionMiddleware(PARTY_PAGE_ID));
 
-router.get("/GetPartyList", getPartyList);
+/* ---------------- PARTY ROUTES ---------------- */
+router.post("/SaveParty", partyController.createParty.bind(partyController));
 
-router.get("/EditParty/:id", getPartyById);
+router.get("/GetPartyList", partyController.getPartyList.bind(partyController));
 
-router.delete("/DeleteParty/:id", deleteParty);
+router.get("/GetPartyById/:id", partyController.getPartyById.bind(partyController));
+
+router.put("/UpdateParty/:id", partyController.updateParty.bind(partyController));
+
+router.delete("/DeleteParty/:id", partyController.deleteParty.bind(partyController));
 
 export default router;

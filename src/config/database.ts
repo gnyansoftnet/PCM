@@ -16,6 +16,8 @@ import { RouteMaster } from "../entity/RouteMaster";
 import { OpeningBalance } from "../entity/OpeningBalance";
 import { PeetyCashTransaction } from "../entity/PeetyCashTransaction";
 import { ExpensesHead } from "../entity/ExpensesHead";
+import { Party } from "../entity/Party";
+import { Driver } from "../entity/Driver";
 
 
 dotenv.config();
@@ -32,7 +34,7 @@ export const AppDataSource = new DataSource({
     entities: [User, Role,
         PageModule, Token,
         Organisation, Branch, Useraccess, Page, Roleaccess,
-        Vehicle, VehicleType, RouteMaster, OpeningBalance, PeetyCashTransaction, ExpensesHead
+        Vehicle, VehicleType, RouteMaster, OpeningBalance, PeetyCashTransaction, ExpensesHead,Party,Driver
     ],
     // entities: [ExpensesHead]
 

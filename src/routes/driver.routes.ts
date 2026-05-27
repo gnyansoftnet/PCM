@@ -1,38 +1,32 @@
-import express from "express";
+import { Router } from "express";
+
+import { DriverController } from "../controller/driver.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
+import { permissionMiddleware } from "../middleware/permission.middleware";
 
+const router = Router();
 
+const driverController = new DriverController();
 
-import {
-    getDrivers,
-    postDriver,
-    editDriver,
-    deleteDriver
-} from "../controller/driver.controller";
+const DRIVER_PAGE_ID = 18; // change as per your system
 
-const router = express.Router();
+/* ---------------- MIDDLEWARE ---------------- */
 
 router.use(authMiddleware);
 
-// GET ALL DRIVERS
-router.get("/getDrivers", getDrivers);
+// router.use(permissionMiddleware(DRIVER_PAGE_ID));
 
+/* ---------------- DRIVER ROUTES ---------------- */
 
+router.post("/SaveDriver",driverController.createDriver.bind(driverController));
 
-// INSERT DRIVER
-router.post("/PostDriver", postDriver);
+router.get("/GetDriverList",driverController.getDriverList.bind(driverController));
 
+router.get("/GetDriverById/:id",driverController.getDriverById.bind(driverController));
 
+router.put("/UpdateDriver/:id",driverController.updateDriver.bind(driverController));
 
-// EDIT DRIVER
-router.put("/EditDriver/:id", editDriver);
-
-
-
-// DELETE DRIVER
-router.delete("/DeleteDriver/:id", deleteDriver);
-
-
+router.delete("/DeleteDriver/:id",driverController.deleteDriver.bind(driverController));
 
 export default router;

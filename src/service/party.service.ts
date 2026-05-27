@@ -1,256 +1,168 @@
+import { Repository } from "typeorm";
+import { Party } from "../entity/Party";
 import { AppDataSource } from "../config/database";
+import { AppError } from "../utils/app.error";
 
-/* ---------------- VALIDATION ---------------- */
-const validateParty = (data: any) => {
-    const errors: string[] = [];
+export class PartyService {
 
-    if (!data.Party_Name?.trim()) {
-        errors.push("Party Name Cannot Be Left Blank");
+    private partyRepo: Repository<Party>;
+
+    constructor() {
+        this.partyRepo = AppDataSource.getRepository(Party);
     }
 
-    if (!data.Party_GSTIN?.trim()) {
-        errors.push("GSTIN Cannot Be Left Blank");
-    }
+    /* ---------------- CREATE ---------------- */
 
-    if (!data.Phone_No?.trim()) {
-        errors.push("Phone No Cannot Be Left Blank");
-    } else if (!/^\d{10}$/.test(data.Phone_No)) {
-        errors.push("Phone No must be exactly 10 digits");
-    }
+    async createParty(data: Partial<Party>): Promise<Party> {
 
-    if (!data.SAPERP_Code?.trim()) {
-        errors.push("SAP/ERP Code Cannot Be Left Blank");
-    }
+        if (!data.Party_Name?.trim()) {
+            throw new AppError("Party Name Required", 400);
+        }
 
-    if (!data.Org_Code?.trim()) {
-        errors.push("Org Code Cannot Be Left Blank");
-    }
+        if (!data.Party_GSTIN?.trim()) {
+            throw new AppError("GSTIN Required", 400);
+        }
 
-    if (!data.Route_Id) {
-        errors.push("Route Cannot Be Left Blank");
-    }
+        if (!data.Phone_No?.trim()) {
+            throw new AppError("Phone Number Required", 400);
+        }
 
-    return errors;
-};
+        // const duplicateParty = await this.partyRepo.findOne({
+        //     where: [
+        //         { Party_Name: data.Party_Name, Dflag: 0 },
+        //         { Party_GSTIN: data.Party_GSTIN, Dflag: 0 },
+        //         { Phone_No: data.Phone_No, Dflag: 0 },
+        //         { SAPERP_Code: data.SAPERP_Code, Dflag: 0 }
+        //     ]
+        // });
 
-/* ---------------- DUPLICATE CHECK ---------------- */
-const checkDuplicates = async (data: any) => {
+        // if (duplicateParty) {
+        //     throw new AppError("Party Already Exists", 400);
+        // }
 
-    const errors: string[] = [];
-    const id = data.Party_Id || 0;
+const nameExists = await this.partyRepo
+    .createQueryBuilder("party")
+    .where("LOWER(party.Party_Name) = LOWER(:name)", {
+        name: data.Party_Name
+    })
+    .andWhere("party.Dflag = 0")
+    .getOne();
 
-    const name = await AppDataSource.query(
-        `SELECT Party_Id FROM Tbl_01_M_Party 
-         WHERE Dflag=0 and LOWER(Party_Name) = LOWER(?) AND Party_Id != ?`,
-        [data.Party_Name, id]
-    );
+if (nameExists) {
+    throw new AppError("Party Name Already Exists", 400);
+}
 
-    if (name.length > 0) {
-        errors.push("Party Name Already Exists!");
-    }
+        /* -------- GENERATE PARTY CODE -------- */
 
-    const gst = await AppDataSource.query(
-        `SELECT Party_Id FROM Tbl_01_M_Party 
-         WHERE Dflag=0 and Party_GSTIN = ? AND Party_Id != ?`,
-        [data.Party_GSTIN, id]
-    );
-
-    if (gst.length > 0) {
-        errors.push("GSTIN Already Exists!");
-    }
-
-    const phone = await AppDataSource.query(
-        `SELECT Party_Id FROM Tbl_01_M_Party 
-         WHERE Dflag=0 and Phone_No = ? AND Party_Id != ?`,
-        [data.Phone_No, id]
-    );
-
-    if (phone.length > 0) {
-        errors.push("Phone Number Already Exists!");
-    }
-
-    return errors;
-};
-
-/* ---------------- SAVE PARTY ---------------- */
-export const saveParty = async (data: any) => {
-
-    const validationErrors = validateParty(data);
-    const duplicateErrors = await checkDuplicates(data);
-
-    const allErrors = [...validationErrors, ...duplicateErrors];
-
-    if (allErrors.length > 0) {
-        return {
-            success: false,
-            message: allErrors
-        };
-    }
-
-    const {
-        Party_Id,
-        Party_Name,
-        Party_Address,
-        Party_GSTIN,
-        Contact_Person,
-        Phone_No,
-        Email,
-        SAPERP_Code,
-        Route_Id,
-        Fin_Year,
-        Org_Code,
-        Created_By,
-        Modified_By,
-        Dflag
-    } = data;
-
-    /* ---------------- INSERT ---------------- */
-    if (Party_Id == 0) {
-
-        const codeResult: any = await AppDataSource.query(`
-            SELECT Party_Code 
-            FROM Tbl_01_M_Party 
-            ORDER BY Party_Id DESC 
-            LIMIT 1
-        `);
+        const lastParty = await this.partyRepo.find({
+            order: { Party_Id: "DESC" },
+            take: 1
+        });
 
         let newCode = "PR/0001";
 
-        if (codeResult.length > 0) {
-            const last = codeResult[0].Party_Code;
-            const num = parseInt(last.split("/")[1]);
-            newCode = `PR/${(num + 1).toString().padStart(4, "0")}`;
+        if (lastParty.length > 0) {
+
+            const lastCode = lastParty[0].Party_Code;
+
+            const num = parseInt(lastCode.split("/")[1]);
+
+            newCode = `PR/${(num + 1)
+                .toString()
+                .padStart(4, "0")}`;
         }
 
-        const query = `
-            INSERT INTO Tbl_01_M_Party
-            (
-                Party_Code, Party_Name, Party_Address, Party_GSTIN,
-                Contact_Person, Phone_No, Email, SAPERP_Code,
-                Route_Id, Fin_Year, Org_Code, Created_By,
-                Created_Date, Dflag
-            )
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NOW(),?)
-        `;
+        const party = this.partyRepo.create({
+            ...data,
+            Party_Code: newCode,
+            Dflag: 0
+        });
 
-        const values = [
-            newCode,
-            Party_Name,
-            Party_Address,
-            Party_GSTIN,
-            Contact_Person,
-            Phone_No,
-            Email,
-            SAPERP_Code,
-            Route_Id,
-            Fin_Year,
-            Org_Code,
-            Created_By,
-            Dflag
-        ];
+        return await this.partyRepo.save(party);
+    }
 
-        await AppDataSource.query(query, values);
+    /* ---------------- GET LIST ---------------- */
 
-        return {
-            success: true,
-            message: "Party Inserted Successfully"
-        };
+    async getPartyList(): Promise<Party[]> {
+
+        return await this.partyRepo.find({
+            where: { Dflag: 0 },
+            order: { Party_Id: "DESC" }
+        });
+    }
+
+    /* ---------------- GET BY ID ---------------- */
+
+    async getPartyById(id: number): Promise<Party> {
+
+        const party = await this.partyRepo.findOne({
+            where: {
+                Party_Id: id,
+                Dflag: 0
+            }
+        });
+
+        if (!party) {
+            throw new AppError("Party Not Found", 404);
+        }
+
+        return party;
     }
 
     /* ---------------- UPDATE ---------------- */
-    const updateQuery = `
-        UPDATE Tbl_01_M_Party
-        SET
-            Party_Name = ?,
-            Party_Address = ?,
-            Party_GSTIN = ?,
-            Contact_Person = ?,
-            Phone_No = ?,
-            Email = ?,
-            SAPERP_Code = ?,
-            Route_Id = ?,
-            Fin_Year = ?,
-            Org_Code = ?,
-            Modified_By = ?,
-            Modified_Date = NOW(),
-            Dflag = ?
-        WHERE Party_Id = ?
-    `;
 
-    const values = [
-        Party_Name,
-        Party_Address,
-        Party_GSTIN,
-        Contact_Person,
-        Phone_No,
-        Email,
-        SAPERP_Code,
-        Route_Id,
-        Fin_Year,
-        Org_Code,
-        Modified_By,
-        Dflag,
-        Party_Id
-    ];
+    async updateParty(
+        id: number,
+        data: Partial<Party>
+    ): Promise<Party> {
 
-    await AppDataSource.query(updateQuery, values);
+        const existingParty = await this.getPartyById(id);
 
-    return {
-        success: true,
-        message: "Party Updated Successfully"
-    };
-};
+        // const duplicate = await this.partyRepo.findOne({
+        //     where: [
+        //         {
+        //             Party_GSTIN: data.Party_GSTIN,
+        //             Dflag: 0
+        //         },
+        //         {
+        //             Phone_No: data.Phone_No,
+        //             Dflag: 0
+        //         }
+        //     ]
+        // });
 
-/* ---------------- GET LIST ---------------- */
-export const getPartyList = async () => {
-    return await AppDataSource.query(`
-        SELECT * FROM Tbl_01_M_Party where Dflag=0 
-        ORDER BY Party_Id DESC
-    `);
-};
+        // if (
+        //     duplicate &&
+        //     duplicate.Party_Id !== id
+        // ) {
+        //     throw new AppError(
+        //         "Duplicate GSTIN or Phone Number",
+        //         400
+        //     );
+        // }
 
-/* ---------------- GET BY ID ---------------- */
-export const getPartyById = async (id: number) => {
+        const updatedParty = this.partyRepo.merge(
+            existingParty,
+            {
+                ...data
+            }
+        );
 
-    if (!id || id <= 0) {
-        return {
-            success: false,
-            message: "Party Id Cannot Be Blank!"
-        };
+        return await this.partyRepo.save(updatedParty);
     }
 
-    const result = await AppDataSource.query(
-        `SELECT * 
-         FROM Tbl_01_M_Party 
-         WHERE Dflag = 0 AND Party_Id = ?`,
-        [id]
-    );
+    /* ---------------- DELETE ---------------- */
 
-    return {
-        success: true,
-        data: result
-    };
-};
-/* ---------------- DELETE ---------------- */
-export const deleteParty = async (id: number) => {
-   
-    if (!id || id <= 0) {
+    async deleteParty(id: number): Promise<{ message: string }> {
+
+        const party = await this.getPartyById(id);
+
+        party.Dflag = 1;
+
+        await this.partyRepo.save(party);
+
         return {
-            success: false,
-            message: "Party Id Cannot Be Blank!"
+            message: "Party Deleted Successfully"
         };
     }
-    
-    const result = await AppDataSource.query(
-        `UPDATE Tbl_01_M_Party 
-         SET Dflag = 1 
-         WHERE Dflag = 0 AND Party_Id = ?`,
-        [id]
-    );
-
-    return {
-        success: true,
-        message: "Party Deleted Successfully",
-        data: result
-    };
-};
+}
