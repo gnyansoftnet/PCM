@@ -6,7 +6,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 
-@Entity("Tbl_01_M_Party")
+@Entity("tbl_01_m_party")
 export class Party {
 
     @PrimaryGeneratedColumn()

@@ -6,7 +6,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 
-@Entity("Tbl_01_M_Driver")
+@Entity("tbl_01_m_driver")
 export class Driver {
 
     @PrimaryGeneratedColumn()

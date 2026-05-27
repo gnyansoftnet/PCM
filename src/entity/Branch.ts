@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 
-@Entity("tbl_01_M_Branch")
+@Entity("tbl_01_m_branch")
 export class Branch {
 
     @PrimaryGeneratedColumn()

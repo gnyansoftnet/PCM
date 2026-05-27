@@ -5,50 +5,50 @@ import {
   CreateDateColumn,
   UpdateDateColumn
 } from "typeorm";
- 
-@Entity("tbl_01_M_P_UserAccess")
+
+@Entity("tbl_01_m_p_useraccess")
 export class Useraccess {
- 
+
   @PrimaryGeneratedColumn()
   Id!: number;
- 
+
   @Column()
   User_Code!: string;
- 
+
   @Column()
   Role_Id!: number;
-   @Column()
+  @Column()
   M_Id!: number;
-   @Column()
+  @Column()
   PG_Id!: number;
-   @Column()
+  @Column()
   READ!: number;
- 
+
   @Column()
   WRITE!: number;
- 
+
   @Column()
   UPDATE!: number;
- 
- 
-    @Column()
+
+
+  @Column()
   DELETE!: number;
- 
+
   @Column()
   Org_Code!: string;
- 
+
   @Column()
   Dflag!: number;
- 
+
   @Column()
   Created_By!: string;
- 
+
   @CreateDateColumn()
   Created_Date!: Date;
- 
+
   @Column({ nullable: true })
   Modified_By!: string;
- 
+
   @UpdateDateColumn()
   Modified_Date!: Date;
 }

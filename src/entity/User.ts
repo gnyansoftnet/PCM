@@ -9,7 +9,7 @@ import {
 import { Token } from "./Token";
 import { UserStatus } from "../enums/user.status.enum";
 
-@Entity("tbl_01_M_P_User")
+@Entity("tbl_01_m_p_user")
 export class User {
 
     @PrimaryGeneratedColumn()

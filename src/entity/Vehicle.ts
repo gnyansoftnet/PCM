@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 
-@Entity("Tbl_01_M_Vehicle")
+@Entity("tbl_01_m_vehicle")
 export class Vehicle {
 
     @PrimaryGeneratedColumn({

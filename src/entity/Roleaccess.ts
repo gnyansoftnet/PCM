@@ -6,7 +6,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 
-@Entity("tbl_01_M_P_RoleAccess")
+@Entity("tbl_01_m_p_roleaccess")
 export class Roleaccess {
 
     @PrimaryGeneratedColumn()

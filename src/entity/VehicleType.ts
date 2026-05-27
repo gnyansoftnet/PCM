@@ -4,7 +4,7 @@ import {
     Column,
 } from "typeorm";
 
-@Entity("Tbl_01_V_Master")
+@Entity("tbl_01_v_master")
 export class VehicleType {
 
     @PrimaryGeneratedColumn({

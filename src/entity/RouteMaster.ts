@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 
-@Entity("tTbl_01_M_Route")
+@Entity("tbl_01_m_route")
 export class RouteMaster {
 
     @PrimaryGeneratedColumn({

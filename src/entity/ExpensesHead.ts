@@ -6,7 +6,7 @@ import {
     CreateDateColumn,
 } from "typeorm";
 
-@Entity("Tbl_01_M_Expenses_Head")
+@Entity("tbl_01_m_expenses_head")
 export class ExpensesHead {
 
     @PrimaryGeneratedColumn({

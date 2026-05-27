@@ -20,7 +20,7 @@ export class Token {
     @PrimaryGeneratedColumn()
     tokenId!: number;
 
-    @Column({ unique: true, nullable: false })
+    @Column({ unique: true, nullable: false, length: 499 })
     token!: string;
 
     @Column({

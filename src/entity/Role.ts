@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 
-@Entity("tbl_01_M_P_Role")
+@Entity("tbl_01_m_p_role")
 export class Role {
 
     @PrimaryGeneratedColumn({
@@ -19,7 +19,7 @@ export class Role {
         type: "varchar",
         length: 50,
         nullable: true,
-        unique: true,
+
     })
     roleName?: string;
 

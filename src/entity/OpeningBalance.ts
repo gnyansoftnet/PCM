@@ -4,7 +4,7 @@ import {
     Column,
 } from "typeorm";
 
-@Entity("Tbl_01_M_Opening_Balance")
+@Entity("tbl_01_m_opening_balance")
 export class OpeningBalance {
 
     @PrimaryGeneratedColumn({

@@ -3,7 +3,7 @@ import { VehicleController } from "../controller/vehicle.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { permissionMiddleware } from "../middleware/permission.middleware";
 import { RouteController } from "../controller/route.controller";
-import { ExpensesHeadController } from "../controller/Expenses.head.controller";
+import { ExpensesHeadController } from "../controller/expenses-head.controller";
 
 
 const router = Router();

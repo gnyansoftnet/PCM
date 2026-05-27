@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 
-@Entity("tbl_01_M_P_Module")
+@Entity("tbl_01_m_p_module")
 export class PageModule {
 
     @PrimaryGeneratedColumn({

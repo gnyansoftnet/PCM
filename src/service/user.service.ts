@@ -53,6 +53,7 @@ export class UserService {
             orgCode: user.orgCode,
             userCode: user.userCode,
             branchCode: user.branchCode,
+            roleId: user.roleId,
 
         };
         const accessToken = generateAccessToken(payload);

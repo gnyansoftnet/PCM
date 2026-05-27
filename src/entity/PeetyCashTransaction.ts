@@ -4,7 +4,7 @@ import {
     Column,
 } from "typeorm";
 
-@Entity("Peety_Cash_All_Transaction")
+@Entity("peety_cash_all_transaction")
 export class PeetyCashTransaction {
 
     @PrimaryGeneratedColumn({
