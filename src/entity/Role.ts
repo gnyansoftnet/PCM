@@ -19,7 +19,7 @@ export class Role {
         type: "varchar",
         length: 50,
         nullable: true,
-        unique: true,
+
     })
     roleName?: string;
 

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ExpensesHeadService } from "../service/expenses.head.service";
+import { ExpensesHeadService } from "../service/expenses-head.service";
 
 const expensesHeadService = new ExpensesHeadService();
 
