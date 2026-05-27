@@ -102,6 +102,7 @@ export const saveRoleAccess = async (
 ) => {
 
     const {
+        User_Code,
         Role_Id,
         Org_Code,
         Created_By,
@@ -109,13 +110,17 @@ export const saveRoleAccess = async (
     } = data;
 
     const result = await AppDataSource.query(
-        `CALL USP_M_P_RoleAccess_IUD(
-    ?, ?, ?, ?, ?
-  )`,
+        `
+        CALL USP_M_P_RoleAccess_IUD(
+            ?, ?, ?, ?, ?, ?, ?
+        )
+        `,
         [
             'UPDATE',
-            Role_Id,
+            User_Code,
             Org_Code,
+            Role_Id,
+            0,
             Created_By,
             JSON.stringify(Role_Access)
         ]
