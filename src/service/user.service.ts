@@ -79,7 +79,8 @@ export class UserService {
 
         const existingUser = await userRepo.findOne({
             where: {
-                name: body.name
+                name: body.name,
+                dflag: false,
             }
         });
         if (existingUser) {
@@ -88,7 +89,9 @@ export class UserService {
 
         const existRole = await roleRepo.findOne({
             where: {
-                roleId: body.userType
+                roleId: body.userType,
+                dflag: false,
+
             }
         })
 
@@ -99,7 +102,9 @@ export class UserService {
 
         const existOrg = await orgRepo.findOne({
             where: {
-                Org_Code: body.orgCode
+                Org_Code: body.orgCode,
+                Dflag: 0,
+
             }
         })
 
@@ -110,7 +115,9 @@ export class UserService {
 
         const existBranch = await branchRepo.findOne({
             where: {
-                Branch_Code: body.branchCode
+                Branch_Code: body.branchCode,
+                Dflag: false,
+
             }
         })
 
@@ -136,6 +143,7 @@ export class UserService {
             mobile: body.mobile,
             email: body.email,
             status: body.status,
+            createdBy: body.createdBy,
 
         });
 
@@ -164,7 +172,7 @@ export class UserService {
         body: CreateUserRequestDto
     ): Promise<UserResponseDto> {
         const user = await userRepo.findOne({
-            where: { userId }
+            where: { userId: userId, dflag: false, }
         });
 
         if (!user) {
@@ -218,11 +226,12 @@ export class UserService {
         user.branchCode = body.branchCode;
         user.mobile = body.mobile;
         user.email = body.email;
-
+        user.modifiedBy = body.modifiedBy;
+        user.status = body.status;
         // update password only if provided
-        if (body.password) {
-            user.password = await hashPassword(body.password);
-        }
+        // if (body.password) {
+        //     user.password = await hashPassword(body.password);
+        // }
 
         const updatedUser = await userRepo.save(user);
 

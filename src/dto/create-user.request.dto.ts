@@ -8,4 +8,6 @@ export interface CreateUserRequestDto {
     status: string;
     orgCode: string;
     branchCode: string;
+    modifiedBy: string;
+    createdBy: string;
 }
