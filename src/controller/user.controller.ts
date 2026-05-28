@@ -117,7 +117,7 @@ export class UserController {
 
     async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = parseId(req.params.userId, next);
+            const userId = parseInt(req.params.id as string);
             if (!userId) return;
 
             const data = await userService.deleteUser(userId);
