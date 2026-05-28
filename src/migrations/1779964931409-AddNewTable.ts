@@ -4,8 +4,28 @@ export class AddNewTable1779964931409 implements MigrationInterface {
     name = 'AddNewTable1779964931409'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP INDEX \`IDX_62c1dd637bb786cafd0a9408b1\` ON \`tbl_01_m_party\``);
-        await queryRunner.query(`DROP INDEX \`IDX_d89fe173aef6172be666b1156a\` ON \`tbl_01_m_party\``);
+        // Check and drop IDX_62c1dd637bb786cafd0a9408b1 if exists
+        const index1 = await queryRunner.query(`
+            SELECT COUNT(*) as cnt FROM information_schema.statistics 
+            WHERE table_schema = DATABASE() 
+            AND table_name = 'tbl_01_m_party' 
+            AND index_name = 'IDX_62c1dd637bb786cafd0a9408b1'
+        `);
+        if (index1[0].cnt > 0) {
+            await queryRunner.query(`DROP INDEX \`IDX_62c1dd637bb786cafd0a9408b1\` ON \`tbl_01_m_party\``);
+        }
+
+        // Check and drop IDX_d89fe173aef6172be666b1156a if exists
+        const index2 = await queryRunner.query(`
+            SELECT COUNT(*) as cnt FROM information_schema.statistics 
+            WHERE table_schema = DATABASE() 
+            AND table_name = 'tbl_01_m_party' 
+            AND index_name = 'IDX_d89fe173aef6172be666b1156a'
+        `);
+        if (index2[0].cnt > 0) {
+            await queryRunner.query(`DROP INDEX \`IDX_d89fe173aef6172be666b1156a\` ON \`tbl_01_m_party\``);
+        }
+
         await queryRunner.query(`ALTER TABLE \`tbl_01_m_party\` CHANGE \`Party_Address\` \`Party_Address\` varchar(100) NOT NULL`);
         await queryRunner.query(`ALTER TABLE \`tbl_01_m_party\` CHANGE \`Contact_Person\` \`Contact_Person\` varchar(50) NOT NULL`);
         await queryRunner.query(`ALTER TABLE \`tbl_01_m_party\` CHANGE \`Email\` \`Email\` varchar(50) NOT NULL`);
@@ -24,5 +44,4 @@ export class AddNewTable1779964931409 implements MigrationInterface {
         await queryRunner.query(`CREATE UNIQUE INDEX \`IDX_d89fe173aef6172be666b1156a\` ON \`tbl_01_m_party\` (\`SAPERP_Code\`)`);
         await queryRunner.query(`CREATE UNIQUE INDEX \`IDX_62c1dd637bb786cafd0a9408b1\` ON \`tbl_01_m_party\` (\`Party_GSTIN\`)`);
     }
-
 }

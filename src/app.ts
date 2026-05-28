@@ -13,6 +13,7 @@ import routeMasterRoute from "./routes/route.master.route";
 import expensesHeadRoute from "./routes/expenses.head.route";
 import partyRoutes from "./routes/party.routes";
 import authRoute from "./routes/auth.route";
+import pageModuleRoute from "./routes/page-module.route";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(cors());
 app.use("/api/auth", authRoute)
 app.use("/api/user", userRoutes);
 app.use("/api/organisation", organisationRoute)
+app.use("/api/page-module", pageModuleRoute)
 app.use("/api/role", roleRoutes);
 app.use("/api/role-access", roleaccessRoutes);
 app.use("/api/user-access", useraccessRoute)
