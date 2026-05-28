@@ -47,6 +47,16 @@ export class VehicleService {
             throw new AppError('Organisation Not found', 400);
         }
 
+        const existvehicle = await this.vehicleRepo.findOne({
+            where: {
+                vehicleNo: data.vehicleNo,
+                dflag: false,
+            }
+        });
+        if (existvehicle) {
+            throw new AppError('THis vehocel number is exist', 400);
+        }
+
         const vehicle = this.vehicleRepo.create({
             vehicleNo: data.vehicleNo,
             vehicleType: data.vModel,
