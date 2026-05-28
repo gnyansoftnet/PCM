@@ -18,29 +18,32 @@ export class Party {
     @Column({ type: "varchar", length: 50 })
     Party_Name!: string;
 
-    @Column({ type: "varchar", length: 100, nullable: true })
+    @Column({ type: "varchar", length: 100 })
     Party_Address!: string;
 
-    @Column({ type: "varchar", length: 50, unique: true })
+    @Column({ type: "varchar", length: 50 })
     Party_GSTIN!: string;
 
-    @Column({ type: "varchar", length: 50, nullable: true })
+    @Column({ type: "varchar", length: 50 })
     Contact_Person!: string;
 
     @Column({ type: "varchar", length: 50, unique: true })
     Phone_No!: string;
 
-    @Column({ type: "varchar", length: 50, nullable: true })
+    @Column({ type: "varchar", length: 50})
     Email!: string;
 
-    @Column({ type: "varchar", length: 50, unique: true })
+    @Column({ type: "varchar", length: 50})
     SAPERP_Code!: string;
+
+    @Column({ type: "varchar", length: 50,nullable: true})
+    Route?: string;
 
     @Column({ type: "int" })
     Route_Id!: number;
 
     @Column({ type: "varchar", length: 50, nullable: true })
-    Fin_Year!: string;
+    Fin_Year?: string;
 
     @Column({ type: "varchar", length: 50 })
     Org_Code!: string;
@@ -52,10 +55,10 @@ export class Party {
     Created_Date!: Date;
 
     @Column({ type: "varchar", length: 50, nullable: true })
-    Modified_By!: string;
+    Modified_By?: string;
 
     @UpdateDateColumn({ type: "datetime", nullable: true })
-    Modified_Date!: Date;
+    Modified_Date?: Date;
 
     @Column({ type: "int", default: 0 })
     Dflag!: number;
