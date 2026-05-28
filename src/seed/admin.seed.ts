@@ -14,23 +14,18 @@ export const seedAdminUser = async () => {
     const orgRepo = AppDataSource.getRepository(Organisation);
     const branchRepo = AppDataSource.getRepository(Branch);
 
-
-
-
     let org = await orgRepo.findOne({
         where: {
-            Org_Name: "PCM",
-
+            Org_Name: "HINDUSTAN AGENCIES",
         }
     })
 
     if (!org) {
         org = orgRepo.create({
             Org_Code: "PCM",
-            Org_Name: "PCM",
+            Org_Name: "HINDUSTAN AGENCIES",
             Org_ShortName: "PCM",
             Address: "Bhubaneswar",
-
         })
     }
 

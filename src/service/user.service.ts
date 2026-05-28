@@ -122,7 +122,7 @@ export class UserService {
         const hashedPassword = await hashPassword(
             body.password
         );
-        const userCode = await generateUserCode(existOrg.Org_Code);
+        const userCode = await generateUserCode(existOrg.Org_ShortName);
 
 
         const user = userRepo.create({
@@ -266,6 +266,7 @@ export class UserService {
         const user = await userRepo.findOne({
             where: {
                 userId,
+                dflag: false,
             }
         });
 

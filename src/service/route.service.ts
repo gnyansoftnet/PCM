@@ -158,7 +158,7 @@ export class RouteService {
         query: PaginationQuery,
     ): Promise<PaginatedResult<RouteMaster>> {
 
-        const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode } });
+        const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode, Dflag: 0 } });
         if (existOrg == null) throw new AppError("Organisation Not Found", 404);
 
         const page = Math.max(1, Number(query.page) || 1);

@@ -87,20 +87,27 @@ export class VehicleController {
 
     async getAllVehiclesByOrgCode(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const orgCode = req.params.orgCode as string;
+            const { orgCode, page, limit, search } = req.query as {
+                orgCode: string;
+                page?: string;
+                limit?: string;
+                search?: string;
+            };
+
             if (!orgCode) {
-                res.status(400).json({ success: false, message: "orgCode is required." });
+                res.status(400).json({ success: false, message: "orgCode query param is required" });
                 return;
             }
 
-            const vehicles = await vehicleService.getAllVehiclesByOrgCode(orgCode);
-            res.status(200).json({
-                success: true,
-                count: vehicles.length,
-                data: vehicles,
+            const result = await vehicleService.getAllVehiclesByOrgCode(orgCode, {
+                page: page ? parseInt(page) : 1,
+                limit: limit ? parseInt(limit) : 10,
+                search: search ?? "",
             });
-        } catch (error) {
-            next(error);
+
+            res.status(200).json({ success: true, ...result });
+        } catch (error: any) {
+            res.status(error.statusCode ?? 500).json({ success: false, message: error.message });
         }
     }
 }

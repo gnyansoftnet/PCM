@@ -1,10 +1,12 @@
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { Vehicle } from "../entity/Vehicle";
 import { AppDataSource } from "../config/database";
 import { AppError } from "../utils/app.error";
 import { Organisation } from "../entity/Orgnaisation";
 import { User } from "../entity/User";
 import { VehicleType } from "../entity/VehicleType";
+import { PaginationQuery } from "../dto/pagination.query.dto";
+import { PaginatedResult } from "../dto/pagination.result.dto";
 
 export class VehicleService {
     private vehicleRepo: Repository<Vehicle>;
@@ -155,15 +157,65 @@ export class VehicleService {
     }
 
 
-    async getAllVehiclesByOrgCode(orgCode: string): Promise<Vehicle[]> {
+    // async getAllVehiclesByOrgCode(orgCode: string): Promise<Vehicle[]> {
 
-        const vehicles = await this.vehicleRepo.find({
-            where: { orgCode, dflag: false },
+    //     const vehicles = await this.vehicleRepo.find({
+    //         where: { orgCode, dflag: false },
+    //         order: { createdDate: "DESC" },
+    //     });
+
+    //     return vehicles;
+
+    // }
+
+
+    async getAllVehiclesByOrgCode(
+        orgCode: string,
+        query: PaginationQuery,
+    ): Promise<PaginatedResult<Vehicle>> {
+
+        const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode, Dflag: 0 } });
+        if (existOrg == null) throw new AppError("Organisation Not Found", 404);
+
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const skip = (page - 1) * limit;
+        const search = query.search?.trim() ?? "";
+
+        // Base filter always applied
+        const baseWhere = { orgCode, dflag: false as any };
+
+        // Search across vehicleNo, vehicleType, vModel, vehicleOwnerName, vehicleCapacity
+        const whereClause = search
+            ? [
+                { ...baseWhere, vehicleNo: ILike(`%${search}%`) },
+                { ...baseWhere, vehicleType: ILike(`%${search}%`) },
+                { ...baseWhere, vModel: ILike(`%${search}%`) },
+                { ...baseWhere, vehicleOwnerName: ILike(`%${search}%`) },
+                { ...baseWhere, vehicleCapacity: ILike(`%${search}%`) },
+            ]
+            : baseWhere;
+
+        const [data, total] = await this.vehicleRepo.findAndCount({
+            where: whereClause,
             order: { createdDate: "DESC" },
+            skip,
+            take: limit,
         });
 
-        return vehicles;
+        const totalPages = Math.ceil(total / limit);
 
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+            },
+        };
     }
 
 
