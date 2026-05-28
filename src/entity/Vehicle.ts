@@ -41,14 +41,16 @@ export class Vehicle {
         name: "Vehicle_OwnerName",
         type: "varchar",
         length: 50,
+        nullable: true,
 
     })
-    vehicleOwnerName!: string;
+    vehicleOwnerName?: string;
 
     @Column({
         name: "Vehicle_Capacity",
         type: "varchar",
         length: 50,
+       
 
     })
     vehicleCapacity!: string;
@@ -56,6 +58,7 @@ export class Vehicle {
     @Column({
         name: "Case_Approx",
         type: "int",
+        
 
     })
     caseApprox!: number;

@@ -22,7 +22,7 @@ export class Driver {
     Driver_Phone_No!: string;
 
     @Column({ type: "varchar", length: 50, nullable: true })
-    Driver_Type!: string;
+    Driver_Type?: string;
 
     @Column({ type: "varchar", length: 50, nullable: true })
     Fin_Year!: string;
