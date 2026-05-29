@@ -59,8 +59,8 @@ export class VehicleService {
 
         const vehicle = this.vehicleRepo.create({
             vehicleNo: data.vehicleNo,
-            vehicleType: data.vModel,
-            vModel: data.vehicleType,
+            vehicleType: data.vehicleType,
+            vModel: data.vModel,
             vehicleCapacity: data.vehicleCapacity,
             caseApprox: data.caseApprox,
             orgCode: data.orgCode,
@@ -113,8 +113,8 @@ export class VehicleService {
 
         const updated = this.vehicleRepo.merge(existing, {
             vehicleNo: data.vehicleNo,
-            vModel: data.vehicleType,
-            vehicleType: data.vModel,
+            vModel: data.vModel,
+            vehicleType: data.vehicleType,
             vehicleCapacity: data.vehicleCapacity,
             caseApprox: data.caseApprox,
             modifiedBy: data.modifiedBy,
