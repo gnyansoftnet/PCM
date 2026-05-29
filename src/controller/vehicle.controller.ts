@@ -66,23 +66,23 @@ export class VehicleController {
     }
 
 
-        async getVehicleById(req: Request, res: Response, next: NextFunction): Promise<void> {
-            try {
-                const vehicleId = parseInt(req.params.id as string);
-                if (isNaN(vehicleId)) {
-                    res.status(400).json({ success: false, message: "Invalid vehicle ID." });
-                    return;
-                }
-
-                const vehicle = await vehicleService.getVehicleById(vehicleId);
-                res.status(200).json({
-                    success: true,
-                    data: vehicle,
-                });
-            } catch (error) {
-                next(error);
+    async getVehicleById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const vehicleId = parseInt(req.params.id as string);
+            if (isNaN(vehicleId)) {
+                res.status(400).json({ success: false, message: "Invalid vehicle ID." });
+                return;
             }
+
+            const vehicle = await vehicleService.getVehicleById(vehicleId);
+            res.status(200).json({
+                success: true,
+                data: vehicle,
+            });
+        } catch (error) {
+            next(error);
         }
+    }
 
 
     async getAllVehiclesByOrgCode(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -109,5 +109,18 @@ export class VehicleController {
         } catch (error: any) {
             res.status(error.statusCode ?? 500).json({ success: false, message: error.message });
         }
+    }
+
+    async getAllVehicleType(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const vehicleType = await vehicleService.getAllVehicleType();
+            res.status(200).json({
+                success: true,
+                data: vehicleType,
+            });
+        } catch (error) {
+            next(error);
+        }
+
     }
 }

@@ -12,13 +12,13 @@ export class VehicleService {
     private vehicleRepo: Repository<Vehicle>;
     private orgRepo: Repository<Organisation>;
     private userRepo: Repository<User>;
-    private vehicelType: Repository<VehicleType>;
+    private vehicelTypeRepo: Repository<VehicleType>;
 
     constructor() {
         this.vehicleRepo = AppDataSource.getRepository(Vehicle);
         this.orgRepo = AppDataSource.getRepository(Organisation);
         this.userRepo = AppDataSource.getRepository(User);
-        this.vehicelType = AppDataSource.getRepository(VehicleType);
+        this.vehicelTypeRepo = AppDataSource.getRepository(VehicleType);
 
     }
 
@@ -179,6 +179,8 @@ export class VehicleService {
     // }
 
 
+
+
     async getAllVehiclesByOrgCode(
         orgCode: string,
         query: PaginationQuery,
@@ -226,6 +228,11 @@ export class VehicleService {
                 hasPrevPage: page > 1,
             },
         };
+    }
+
+    async getAllVehicleType(): Promise<VehicleType[]> {
+        return this.vehicelTypeRepo.find();
+
     }
 
 

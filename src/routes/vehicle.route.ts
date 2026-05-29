@@ -15,5 +15,6 @@ router.get("/getVehicleById/:id", vehicleController.getVehicleById.bind(vehicleC
 router.post("/createVehicle/", vehicleController.createVehicle.bind(vehicleController));
 router.put("/updateVehicle/:id", vehicleController.updateVehicle.bind(vehicleController));
 router.delete("/deleteVehicle/:id", vehicleController.deleteVehicle.bind(vehicleController));
+router.get("/getAllVehicleType", vehicleController.getAllVehicleType.bind(vehicleController));
 
 export default router;
