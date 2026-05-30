@@ -83,14 +83,47 @@ if (nameExists) {
 
     /* ---------------- GET LIST ---------------- */
 
-    async getPartyList(): Promise<Party[]> {
+    // async getPartyList(): Promise<Party[]> {
 
-        return await this.partyRepo.find({
-            where: { Dflag: 0 },
-            order: { Party_Id: "DESC" }
-        });
-    }
+    //     return await this.partyRepo.find({
+    //         where: { Dflag: 0 },
+    //         order: { Party_Id: "DESC" }
+    //     });
+    // }
 
+async getPartyList() {
+    return await this.partyRepo
+        .createQueryBuilder("p")
+        .leftJoin(
+            "tbl_01_m_route",
+            "r",
+            "r.Route_Id = p.Route_Id"
+        )
+        .select([
+            "p.Party_Id AS Party_Id",
+            "p.Party_Code AS Party_Code",
+            "p.Party_Name AS Party_Name",
+            "p.Party_Address AS Party_Address",
+            "p.Party_GSTIN AS Party_GSTIN",
+            "p.Contact_Person AS Contact_Person",
+            "p.Phone_No AS Phone_No",
+            "p.Email AS Email",
+            "p.SAPERP_Code AS SAPERP_Code",
+            "r.Route_Name AS Route",
+            "p.Route_Id AS Route_Id",
+            "p.Fin_Year AS Fin_Year",
+            "p.Org_Code AS Org_Code",
+            "p.Created_By AS Created_By",
+            "p.Created_Date AS Created_Date",
+            "p.Modified_By AS Modified_By",
+            "p.Modified_Date AS Modified_Date",
+            "p.Dflag AS Dflag"
+        ])
+        .where("p.Dflag = :dflag", { dflag: 0 })
+        .orderBy("p.Party_Id", "DESC")
+        .getRawMany();
+}
+    
     /* ---------------- GET BY ID ---------------- */
 
     async getPartyById(id: number): Promise<Party> {
