@@ -3,6 +3,7 @@ import { AppDataSource } from "../config/database";
 import { OperationAction } from "../enums/operation-action.enum";
 import { AppError } from "../utils/app.error";
 import { CashInflowResponseDto } from "../dto/cash-inflow-response.dto";
+import { PaginatedResult } from "../dto/pagination.result.dto";
 
 
 const USP_M_CASHINFLOW_IUD = 'CALL USP_M_CASHINFLOW_IUD(?,?,?,?,?,?,?,?,?,?,@p_msg)';
@@ -47,11 +48,31 @@ export class CashInflowRepository {
     }
 
     public async getAllCashInflowByOrg(
-        orgCode: string
-    ): Promise<CashInflowResponseDto[]> {
+        orgCode: string,
+        page: number,
+        limit: number,
+        search: string,
+    ): Promise<PaginatedResult<CashInflowResponseDto>> {
         try {
-            const data = await AppDataSource.query(USP_CASHINFLOW_ALLCASHINFLOWBYORG, [orgCode]);
-            return data[0] ?? []
+            const data = await AppDataSource.query(
+                'CALL USP_CASHINFLOW_ALLCASHINFLOWBYORG(?,?,?,?)',
+                [orgCode, page, limit, search || null]
+            );
+            const total: number = data[0][0]?.total ?? 0;
+            const rows: CashInflowResponseDto[] = data[1] ?? [];
+            const totalPages = Math.ceil(total / limit);
+
+            return {
+                data: rows,
+                meta: {
+                    total,
+                    page,
+                    limit,
+                    totalPages,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1,
+                },
+            };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
@@ -64,7 +85,7 @@ export class CashInflowRepository {
     ): Promise<CashInflowResponseDto> {
         try {
             const data = await AppDataSource.query(USP_CASHINFLOW_DETAILSBYCIFID, [cifId]);
-            return data
+            return data[0][0] ?? {}
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(

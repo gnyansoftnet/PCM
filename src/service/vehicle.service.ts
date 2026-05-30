@@ -167,16 +167,6 @@ export class VehicleService {
     }
 
 
-    // async getAllVehiclesByOrgCode(orgCode: string): Promise<Vehicle[]> {
-
-    //     const vehicles = await this.vehicleRepo.find({
-    //         where: { orgCode, dflag: false },
-    //         order: { createdDate: "DESC" },
-    //     });
-
-    //     return vehicles;
-
-    // }
 
 
 

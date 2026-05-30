@@ -3,11 +3,48 @@ import { OperationAction } from "../enums/operation-action.enum";
 import { CashInFlowService } from "../service/cash-inflow.service";
 import { asyncHandler } from "../middleware/async-handler";
 import { AppError } from "../utils/app.error";
+import { PaginationQuery } from "../dto/pagination.query.dto";
 
 const cashInflowservice = new CashInFlowService();
 
 
 export class CashInFlowController {
+    private readonly cashInFlowService: CashInFlowService;
+    constructor() {
+        this.cashInFlowService = new CashInFlowService();
+    }
+
+    getAllCashInflowByOrg = asyncHandler(async (req: Request, res: Response) => {
+        const { orgCode } = req.body;
+        this.validate(orgCode, 'orgCode');
+
+        const query: PaginationQuery = {
+            page: req.query.page ? Number(req.query.page) : undefined,
+            limit: req.query.limit ? Number(req.query.limit) : undefined,
+            search: req.query.search as string | undefined,
+        };
+
+        const { data, meta } = await this.cashInFlowService.getAllCashInflowByOrg(orgCode, query);
+
+        res.status(200).json({ success: true, type: 'SUCCESS', result: data, meta });
+
+    })
+    getCashInflowDetailsByCifId = asyncHandler(async (req: Request, res: Response) => {
+        const {
+            cifId
+        } = req.body;
+
+        this.validate(cifId, 'cifId');
+        const result = await cashInflowservice.getCashInflowDetailsByCifId(cifId);
+        res.status(
+            200
+        ).json({
+            success: true,
+            type: 'SUCCESS',
+            result,
+        });
+
+    })
 
     saveUpdateDeleteCashInFlow = asyncHandler(async (req: Request, res: Response) => {
         const {
@@ -22,31 +59,27 @@ export class CashInFlowController {
             createdBy,
         } = req.body;
 
-        const validate = (value: any, field: string): void => {
-            if (value === undefined || value === null || value === '') {
-                throw new AppError(`${field} is required`, 400);
-            }
-        };
-        validate(action, 'action');
-        validate(orgCode, 'orgCode');
-        validate(createdBy, 'createdBy');
+
+        this.validate(action, 'action');
+        this.validate(orgCode, 'orgCode');
+        this.validate(createdBy, 'createdBy');
 
         if (action === OperationAction.INSERT) {
-            validate(amount, 'amount');
-            validate(date, 'date');
-            validate(type, 'type');
+            this.validate(amount, 'amount');
+            this.validate(date, 'date');
+            this.validate(type, 'type');
         }
 
         if (action === OperationAction.UPDATE) {
-            validate(cifId, 'cifId');
-            validate(cifCode, 'cifCode');
-            validate(amount, 'amount');
-            validate(date, 'date');
-            validate(type, 'type');
+            this.validate(cifId, 'cifId');
+            this.validate(cifCode, 'cifCode');
+            this.validate(amount, 'amount');
+            this.validate(date, 'date');
+            this.validate(type, 'type');
         }
 
         if (action === OperationAction.DELETE) {
-            validate(cifId, 'cifId');
+            this.validate(cifId, 'cifId');
         }
 
         const message = await cashInflowservice.saveUpdateDeleteCashInflow(
@@ -62,4 +95,12 @@ export class CashInFlowController {
             message,
         });
     });
+
+
+    private validate(value: any, field: string): void {
+        if (value === undefined || value === null || value === '') {
+            throw new AppError(`${field} is required`, 400);
+        }
+    }
+
 }
