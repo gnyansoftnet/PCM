@@ -41,7 +41,7 @@ export class CashInFlowService {
         }
         const existuser = await this.userRepo.findOne({
             where: {
-                userCode: orgCode,
+                userCode: createdBy,
                 dflag: false,
             }
         });
