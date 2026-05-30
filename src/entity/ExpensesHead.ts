@@ -72,6 +72,7 @@ export class ExpensesHead {
         name: "Modified_By",
         type: "varchar",
         length: 50,
+        nullable: true,
     })
     modifiedBy?: string;
 
