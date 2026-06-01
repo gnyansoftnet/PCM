@@ -1,14 +1,15 @@
 import { Request, Response } from "express";
-import * as DashboardService from "../service/dashboard.Service";
+import { dashboardAction } from "../service/dashboard.service";
 
-export const dashboardAction = async (
+
+export const dashboardActionController = async (
     req: Request,
     res: Response
 ) => {
 
     try {
 
-        const result = await DashboardService.dashboardAction(req.body);
+        const result = await dashboardAction(req.body);
 
         return res.status(200).json({
             success: true,
