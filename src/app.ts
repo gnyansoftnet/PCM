@@ -1,6 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-const cors = require('cors');
 import userRoutes from "./routes/user.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 import roleRoutes from "./routes/role.routes";
@@ -15,13 +14,20 @@ import partyRoutes from "./routes/party.routes";
 import authRoute from "./routes/auth.route";
 import pageModuleRoute from "./routes/page-module.route";
 import cashInflowRoute from "./routes/cash-inflow.route";
+import { corsLogger } from "./utils/cors-logger";
+import { corsErrorHandler, corsMiddleware, handlePreflight } from "./middleware/cors.middleware";
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+if (process.env.NODE_ENV !== 'production') {
+    app.use(corsLogger);
+}
+app.options('/{*path}', handlePreflight);
+app.use(corsMiddleware);
 
 app.get("/management/health", (req: express.Request, res: express.Response) => {
     res.status(200).json({
@@ -29,36 +35,6 @@ app.get("/management/health", (req: express.Request, res: express.Response) => {
         timestamp: new Date().toISOString()
     });
 });
-
-app.get("/management/info", (req: express.Request, res: express.Response) => {
-    res.status(200).json({
-        build: {
-            name: process.env.npm_package_name || "app",
-            version: process.env.npm_package_version || "1.0.0",
-            environment: process.env.NODE_ENV || "development"
-        }
-    });
-});
-
-app.get("/management/metrics", (req: express.Request, res: express.Response) => {
-    const mem = process.memoryUsage();
-    res.status(200).json({
-        uptime: `${Math.floor(process.uptime())}s`,
-        memory: {
-            heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
-            heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)}MB`,
-            rss: `${Math.round(mem.rss / 1024 / 1024)}MB`
-        }
-    });
-});
-
-app.get("/management/liveness", (req: express.Request, res: express.Response) => {
-    res.status(200).json({ status: "LIVE", timestamp: new Date().toISOString() });
-});
-
-app.get("/management/readiness", (req: express.Request, res: express.Response) => {
-    res.status(200).json({ status: "READY", timestamp: new Date().toISOString() });
-});;
 
 
 app.use("/api/auth", authRoute);
@@ -84,7 +60,7 @@ app.use((req: express.Request, res: express.Response) => {
 });
 
 app.use(errorMiddleware);
-
+app.use(corsErrorHandler);
 export default app;
 
 

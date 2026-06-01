@@ -15,7 +15,7 @@ export class CashInFlowController {
     }
 
     getAllCashInflowByOrg = asyncHandler(async (req: Request, res: Response) => {
-        const { orgCode } = req.body;
+        const orgCode = req.params.orgCode as string;
         this.validate(orgCode, 'orgCode');
 
         const query: PaginationQuery = {

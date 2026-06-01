@@ -12,7 +12,7 @@ router.use(authMiddleware);
 router.use(permissionMiddleware(CASHINFLOW_PAGE_ID));
 
 router.post("/saveUpdateDeleteCashInFlow", cashInflowController.saveUpdateDeleteCashInFlow.bind(cashInflowController));
-router.get("/getAllCashInflowByOrg", cashInflowController.getAllCashInflowByOrg.bind(cashInflowController));
+router.get("/getAllCashInflowByOrg/:orgCode", cashInflowController.getAllCashInflowByOrg.bind(cashInflowController));
 router.get("/getCashInflowDetailsByCifId", cashInflowController.getCashInflowDetailsByCifId.bind(cashInflowController));
 
 export default router;

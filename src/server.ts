@@ -13,11 +13,10 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
     try {
-        // 1. Connect DB
+
         await AppDataSource.initialize();
         console.log("DB Connected ✅");
 
-        // 2. Run pending migrations
         const migrations = await AppDataSource.runMigrations();
         if (migrations.length > 0) {
             console.log(`Migrations applied ✅: ${migrations.map(m => m.name).join(", ")}`);
@@ -25,13 +24,11 @@ const startServer = async () => {
             console.log("No pending migrations ✅");
         }
 
-        // 3. Seed admin
         await seedAdminUser();
         console.log("NODE_ENV:", process.env.NODE_ENV);
         console.log("DB_HOST:", process.env.DB_HOST);
         console.log("DB_DATABASE:", process.env.DB_DATABASE);
 
-        // 4. Start server
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT} 🚀`);
             console.log(`Environment: ${process.env.NODE_ENV} 🌍`);
