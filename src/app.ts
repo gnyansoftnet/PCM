@@ -14,6 +14,7 @@ import partyRoutes from "./routes/party.routes";
 import authRoute from "./routes/auth.route";
 import pageModuleRoute from "./routes/page-module.route";
 import cashInflowRoute from "./routes/cash-inflow.route";
+import dashboardRoutes from "./routes/dashboard.routes";
 import { corsLogger } from "./utils/cors-logger";
 import { corsErrorHandler, corsMiddleware, handlePreflight } from "./middleware/cors.middleware";
 
@@ -50,7 +51,7 @@ app.use("/api/driver", driverRoutes);
 app.use("/api/expenseshead", expensesHeadRoute);
 app.use("/api/party", partyRoutes);
 app.use("/api/cash-inflow", cashInflowRoute);
-
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use((req: express.Request, res: express.Response) => {
     res.status(404).json({
