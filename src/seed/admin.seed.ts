@@ -3,7 +3,6 @@ import { Organisation } from "../entity/Orgnaisation";
 import { Role } from "../entity/Role";
 import { User } from "../entity/User";
 import bcrypt from "bcrypt";
-
 import { Branch } from "../entity/Branch";
 import { generateBranchCode } from "../utils/branch.code.generation";
 
