@@ -17,6 +17,7 @@ import cashInflowRoute from "./routes/cash-inflow.route";
 import dashboardRoutes from "./routes/dashboard.routes";
 import { corsLogger } from "./utils/cors-logger";
 import { corsErrorHandler, corsMiddleware, handlePreflight } from "./middleware/cors.middleware";
+import otherExpensesRoute from "./routes/other-expenses.route";
 
 dotenv.config();
 
@@ -52,6 +53,8 @@ app.use("/api/expenseshead", expensesHeadRoute);
 app.use("/api/party", partyRoutes);
 app.use("/api/cash-inflow", cashInflowRoute);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/other-expenses", otherExpensesRoute);
+
 
 app.use((req: express.Request, res: express.Response) => {
     res.status(404).json({
