@@ -5,10 +5,11 @@ import app from "./app";
 import { AppDataSource } from "./config/database";
 import { seedAdminUser } from "./seed/admin.seed";
 
-const env = process.env.NODE_ENV || "development";
-dotenv.config({ path: `.env.${env}` });
+dotenv.config({
+    path: `.env.${process.env.NODE_ENV || "development"}`
+});
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
     try {
@@ -33,8 +34,9 @@ const startServer = async () => {
         // 4. Start server
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT} 🚀`);
-            console.log(`Environment: ${env} 🌍`);
+            console.log(`Environment: ${process.env.NODE_ENV} 🌍`);
         });
+
 
     } catch (error) {
         console.error("Server startup failed ❌", error);

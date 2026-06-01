@@ -1,115 +1,232 @@
-import { Request, Response } from "express";
-import {
-    createDriverService,
-    getDriversService,
-    getDriverByIdService,
-    updateDriverService,
-    deleteDriverService
-} from "../service/driver.service";
+// import { Request, Response } from "express";
+// import {
+//     createDriverService,
+//     getDriversService,
+//     getDriverByIdService,
+//     updateDriverService,
+//     deleteDriverService
+// } from "../service/driver.service";
+
+// export class DriverController {
+
+//     async createDriver(req: Request, res: Response) {
+//         try {
+//             const result = await createDriverService(req.body);
+
+//             return res.status(201).json({
+//                 success: true,
+//                 message: "Driver Created Successfully",
+//                 data: result
+//             });
+
+//         } catch (error: any) {
+//             return res.status(500).json({
+//                 success: false,
+//                 message: error.message
+//             });
+//         }
+//     }
+
+//     async getDriverList(_req: Request, res: Response) {
+//         try {
+//             const result = await getDriversService();
+
+//             return res.status(200).json({
+//                 success: true,
+//                 data: result
+//             });
+
+//         } catch (error: any) {
+//             return res.status(500).json({
+//                 success: false,
+//                 message: error.message
+//             });
+//         }
+//     }
+
+
+//     async getDriverById(req: Request, res: Response) {
+//         try {
+//             const id = Number(req.params.id);
+
+//             const result = await getDriverByIdService(id);
+
+//             return res.status(200).json({
+//                 success: true,
+//                 data: result
+//             });
+
+//         } catch (error: any) {
+//             return res.status(500).json({
+//                 success: false,
+//                 message: error.message
+//             });
+//         }
+//     }
+
+
+
+//     async updateDriver(req: Request, res: Response) {
+//         try {
+//             const id = Number(req.params.id);
+
+//             const result = await updateDriverService(id, req.body);
+
+//             return res.status(200).json({
+//                 success: true,
+//                 message: "Driver Updated Successfully",
+//                 data: result
+//             });
+
+//         } catch (error: any) {
+//             return res.status(500).json({
+//                 success: false,
+//                 message: error.message
+//             });
+//         }
+//     }
+
+
+
+//     async deleteDriver(req: Request, res: Response) {
+//         try {
+//             const id = Number(req.params.id);
+
+//             const result = await deleteDriverService(id);
+
+//             return res.status(200).json({
+//                 success: true,
+//                 message: "Driver Deleted Successfully",
+//                 data: result
+//             });
+
+//         } catch (error: any) {
+//             return res.status(500).json({
+//                 success: false,
+//                 message: error.message
+//             });
+//         }
+//     }
+// }
+
+
+
+import { Request, Response, NextFunction } from "express";
+import { DriverService } from "../service/driver.service";
+
 
 export class DriverController {
+    private readonly driverService: DriverService;
+    constructor() {
+        this.driverService = new DriverService();
+    }
 
-    /* ---------------- CREATE ---------------- */
-
-    async createDriver(req: Request, res: Response) {
+    async createDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const result = await createDriverService(req.body);
-
-            return res.status(201).json({
+            const driver = await this.driverService.createDriver(req.body);
+            res.status(201).json({
                 success: true,
-                message: "Driver Created Successfully",
-                data: result
+                message: "Driver created successfully.",
+                data: driver,
             });
-
-        } catch (error: any) {
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    /* ---------------- GET LIST ---------------- */
 
-    async getDriverList(_req: Request, res: Response) {
+    async updateDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const result = await getDriversService();
+            const driverId = parseInt(req.params.id as string);
+            if (isNaN(driverId)) {
+                res.status(400).json({ success: false, message: "Invalid driver ID." });
+                return;
+            }
 
-            return res.status(200).json({
+            const driver = await this.driverService.updateDriver(driverId, req.body);
+            res.status(200).json({
                 success: true,
-                data: result
+                message: "Driver updated successfully.",
+                data: driver,
             });
-
-        } catch (error: any) {
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    /* ---------------- GET BY ID ---------------- */
 
-    async getDriverById(req: Request, res: Response) {
+    async deleteDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id = Number(req.params.id);
+            const driverId = parseInt(req.params.id as string);
+            if (isNaN(driverId)) {
+                res.status(400).json({ success: false, message: "Invalid driver ID." });
+                return;
+            }
 
-            const result = await getDriverByIdService(id);
+            const modifiedBy: string = req.body.Modified_By;
+            if (!modifiedBy) {
+                res.status(400).json({ success: false, message: "Modified_By is required." });
+                return;
+            }
 
-            return res.status(200).json({
+            const result = await this.driverService.deleteDriver(driverId, modifiedBy);
+            res.status(200).json({
                 success: true,
-                data: result
+                message: result.message,
             });
-
-        } catch (error: any) {
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    /* ---------------- UPDATE ---------------- */
 
-    async updateDriver(req: Request, res: Response) {
+    async getDriverById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id = Number(req.params.id);
+            const driverId = parseInt(req.params.id as string);
+            if (isNaN(driverId)) {
+                res.status(400).json({ success: false, message: "Invalid driver ID." });
+                return;
+            }
 
-            const result = await updateDriverService(id, req.body);
-
-            return res.status(200).json({
+            const driver = await this.driverService.getDriverById(driverId);
+            res.status(200).json({
                 success: true,
-                message: "Driver Updated Successfully",
-                data: result
+                data: driver,
             });
-
-        } catch (error: any) {
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    /* ---------------- DELETE ---------------- */
 
-    async deleteDriver(req: Request, res: Response) {
+    async getAllDriversByOrgCode(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id = Number(req.params.id);
+            const { orgCode, page, limit, search } = req.query as {
+                orgCode: string;
+                page?: string;
+                limit?: string;
+                search?: string;
+            };
 
-            const result = await deleteDriverService(id);
+            if (!orgCode) {
+                res.status(400).json({ success: false, message: "orgCode query param is required." });
+                return;
+            }
 
-            return res.status(200).json({
-                success: true,
-                message: "Driver Deleted Successfully",
-                data: result
+            const result = await this.driverService.getAllDriversByOrgCode(orgCode, {
+                page: page ? parseInt(page) : 1,
+                limit: limit ? parseInt(limit) : 10,
+                search: search ?? "",
             });
 
+            res.status(200).json({ success: true, ...result });
         } catch (error: any) {
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+            res.status(error.statusCode ?? 500).json({ success: false, message: error.message });
         }
     }
 }
+
+
+
+
+

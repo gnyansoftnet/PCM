@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 const cors = require('cors');
-// const actuator = require('express-actuator');
 import userRoutes from "./routes/user.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 import roleRoutes from "./routes/role.routes";

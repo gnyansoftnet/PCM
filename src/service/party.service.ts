@@ -11,8 +11,6 @@ export class PartyService {
         this.partyRepo = AppDataSource.getRepository(Party);
     }
 
-    /* ---------------- CREATE ---------------- */
-
     async createParty(data: Partial<Party>): Promise<Party> {
 
         if (!data.Party_Name?.trim()) {
@@ -27,18 +25,6 @@ export class PartyService {
             throw new AppError("Phone Number Required", 400);
         }
 
-        // const duplicateParty = await this.partyRepo.findOne({
-        //     where: [
-        //         { Party_Name: data.Party_Name, Dflag: 0 },
-        //         { Party_GSTIN: data.Party_GSTIN, Dflag: 0 },
-        //         { Phone_No: data.Phone_No, Dflag: 0 },
-        //         { SAPERP_Code: data.SAPERP_Code, Dflag: 0 }
-        //     ]
-        // });
-
-        // if (duplicateParty) {
-        //     throw new AppError("Party Already Exists", 400);
-        // }
 
 const nameExists = await this.partyRepo
     .createQueryBuilder("party")
@@ -51,9 +37,6 @@ const nameExists = await this.partyRepo
 if (nameExists) {
     throw new AppError("Party Name Already Exists", 400);
 }
-
-        /* -------- GENERATE PARTY CODE -------- */
-
         const lastParty = await this.partyRepo.find({
             order: { Party_Id: "DESC" },
             take: 1
@@ -80,16 +63,6 @@ if (nameExists) {
 
         return await this.partyRepo.save(party);
     }
-
-    /* ---------------- GET LIST ---------------- */
-
-    // async getPartyList(): Promise<Party[]> {
-
-    //     return await this.partyRepo.find({
-    //         where: { Dflag: 0 },
-    //         order: { Party_Id: "DESC" }
-    //     });
-    // }
 
 async getPartyList() {
     return await this.partyRepo
@@ -124,7 +97,6 @@ async getPartyList() {
         .getRawMany();
 }
     
-    /* ---------------- GET BY ID ---------------- */
 
     async getPartyById(id: number): Promise<Party> {
 
@@ -142,7 +114,6 @@ async getPartyList() {
         return party;
     }
 
-    /* ---------------- UPDATE ---------------- */
 
     async updateParty(
         id: number,
@@ -150,29 +121,6 @@ async getPartyList() {
     ): Promise<Party> {
 
         const existingParty = await this.getPartyById(id);
-
-        // const duplicate = await this.partyRepo.findOne({
-        //     where: [
-        //         {
-        //             Party_GSTIN: data.Party_GSTIN,
-        //             Dflag: 0
-        //         },
-        //         {
-        //             Phone_No: data.Phone_No,
-        //             Dflag: 0
-        //         }
-        //     ]
-        // });
-
-        // if (
-        //     duplicate &&
-        //     duplicate.Party_Id !== id
-        // ) {
-        //     throw new AppError(
-        //         "Duplicate GSTIN or Phone Number",
-        //         400
-        //     );
-        // }
 
         const updatedParty = this.partyRepo.merge(
             existingParty,
@@ -183,8 +131,6 @@ async getPartyList() {
 
         return await this.partyRepo.save(updatedParty);
     }
-
-    /* ---------------- DELETE ---------------- */
 
     async deleteParty(id: number): Promise<{ message: string }> {
 

@@ -9,24 +9,21 @@ const router = Router();
 
 const driverController = new DriverController();
 
-const DRIVER_PAGE_ID = 18; // change as per your system
+const DRIVER_PAGE_ID = 18;
 
-/* ---------------- MIDDLEWARE ---------------- */
 
 router.use(authMiddleware);
 
-// router.use(permissionMiddleware(DRIVER_PAGE_ID));
+router.use(permissionMiddleware(DRIVER_PAGE_ID));
 
-/* ---------------- DRIVER ROUTES ---------------- */
+router.post("/SaveDriver", driverController.createDriver.bind(driverController));
 
-router.post("/SaveDriver",driverController.createDriver.bind(driverController));
+router.get("/GetDriverList", driverController.getAllDriversByOrgCode.bind(driverController));
 
-router.get("/GetDriverList",driverController.getDriverList.bind(driverController));
+router.get("/GetDriverById/:id", driverController.getDriverById.bind(driverController));
 
-router.get("/GetDriverById/:id",driverController.getDriverById.bind(driverController));
+router.put("/UpdateDriver/:id", driverController.updateDriver.bind(driverController));
 
-router.put("/UpdateDriver/:id",driverController.updateDriver.bind(driverController));
-
-router.delete("/DeleteDriver/:id",driverController.deleteDriver.bind(driverController));
+router.delete("/DeleteDriver/:id", driverController.deleteDriver.bind(driverController));
 
 export default router;

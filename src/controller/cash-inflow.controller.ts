@@ -5,7 +5,7 @@ import { asyncHandler } from "../middleware/async-handler";
 import { AppError } from "../utils/app.error";
 import { PaginationQuery } from "../dto/pagination.query.dto";
 
-const cashInflowservice = new CashInFlowService();
+
 
 
 export class CashInFlowController {
@@ -35,7 +35,7 @@ export class CashInFlowController {
         } = req.body;
 
         this.validate(cifId, 'cifId');
-        const result = await cashInflowservice.getCashInflowDetailsByCifId(cifId);
+        const result = await this.cashInFlowService.getCashInflowDetailsByCifId(cifId);
         res.status(
             200
         ).json({
@@ -82,7 +82,7 @@ export class CashInFlowController {
             this.validate(cifId, 'cifId');
         }
 
-        const message = await cashInflowservice.saveUpdateDeleteCashInflow(
+        const message = await this.cashInFlowService.saveUpdateDeleteCashInflow(
             action, cifId, amount, date,
             remark, type, cifCode,
             orgCode, createdBy,

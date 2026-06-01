@@ -2,14 +2,16 @@ import { Request, Response, NextFunction } from "express";
 import { VehicleService } from "../service/vehicle.service";
 
 
-const vehicleService = new VehicleService();
-
 export class VehicleController {
+    private readonly vehicleService: VehicleService;
+    constructor() {
+        this.vehicleService = new VehicleService();
+    }
 
 
     async createVehicle(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const vehicle = await vehicleService.createVehicle(req.body);
+            const vehicle = await this.vehicleService.createVehicle(req.body);
             res.status(201).json({
                 success: true,
                 message: "Vehicle created successfully.",
@@ -29,7 +31,7 @@ export class VehicleController {
                 return;
             }
 
-            const vehicle = await vehicleService.updateVehicle(vehicleId, req.body);
+            const vehicle = await this.vehicleService.updateVehicle(vehicleId, req.body);
             res.status(200).json({
                 success: true,
                 message: "Vehicle updated successfully.",
@@ -55,7 +57,7 @@ export class VehicleController {
                 return;
             }
 
-            const result = await vehicleService.deleteVehicle(vehicleId, modifiedBy);
+            const result = await this.vehicleService.deleteVehicle(vehicleId, modifiedBy);
             res.status(200).json({
                 success: true,
                 message: result.message,
@@ -74,7 +76,7 @@ export class VehicleController {
                 return;
             }
 
-            const vehicle = await vehicleService.getVehicleById(vehicleId);
+            const vehicle = await this.vehicleService.getVehicleById(vehicleId);
             res.status(200).json({
                 success: true,
                 data: vehicle,
@@ -99,7 +101,7 @@ export class VehicleController {
                 return;
             }
 
-            const result = await vehicleService.getAllVehiclesByOrgCode(orgCode, {
+            const result = await this.vehicleService.getAllVehiclesByOrgCode(orgCode, {
                 page: page ? parseInt(page) : 1,
                 limit: limit ? parseInt(limit) : 10,
                 search: search ?? "",
@@ -113,7 +115,7 @@ export class VehicleController {
 
     async getAllVehicleType(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const vehicleType = await vehicleService.getAllVehicleType();
+            const vehicleType = await this.vehicleService.getAllVehicleType();
             res.status(200).json({
                 success: true,
                 data: vehicleType,
