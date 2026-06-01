@@ -2,36 +2,34 @@ import { Double } from "typeorm/driver/mongodb/bson.typings.js";
 import { AppDataSource } from "../config/database";
 import { OperationAction } from "../enums/operation-action.enum";
 import { AppError } from "../utils/app.error";
-import { CashInflowResponseDto } from "../dto/cash-inflow-response.dto";
 import { PaginatedResult } from "../dto/pagination.result.dto";
+import { OtherExpensesResponseDto } from "../dto/other-expenses-responses.dto";
 
 
-const USP_M_CASHINFLOW_IUD = 'CALL USP_M_CASHINFLOW_IUD(?,?,?,?,?,?,?,?,?,?,@p_msg)';
-const USP_CASHINFLOW_ALLCASHINFLOWBYORG = 'CALL USP_CASHINFLOW_ALLCASHINFLOWBYORG(?,?,?,?)';
-const USP_CASHINFLOW_DETAILSBYCIFID = 'CALL USP_CASHINFLOW_DETAILSBYCIFID(?)';
+const USP_M_OTHEREXPENSES_IUD = 'CALL USP_T_Other_Expenses_IUD(?,?,?,?,?,?,?,?,?,@p_msg)';
+const USP_OTHEREXPENSES_ALLEXPENSESBYORG = 'CALL USP_OTHEREXPENSES_ALLEXPENSESBYORG(?,?,?,?)';
+const USP_OTHEREXPENSES_DETAILSBYID = 'CALL USP_OTHEREXPENSES_DETAILSBYID(?)';
 
-export class CashInflowRepository {
-    async saveUpdateDeleteCashInflow(
+export class OtherExpensesRepository {
+    async saveUpdateDeleteOtherExpenses(
         action: OperationAction,
-        cifId: number,
-        amount: number,
-        date: string,
-        remark: string,
-        type: string,
-        cifCode: string,
+        id: number,
+        expensesAmount: number,
+        expDate: string,
+        expensesName: string,
+        expCode: string,
         orgCode: string,
         createdBy: string,
         finYear: string,
     ): Promise<string> {
         try {
-            await AppDataSource.query(USP_M_CASHINFLOW_IUD, [
+            await AppDataSource.query(USP_M_OTHEREXPENSES_IUD, [
                 action,
-                cifId,
-                amount,
-                date,
-                remark,
-                type,
-                cifCode,
+                id,
+                expensesAmount,
+                expDate,
+                expensesName,
+                expCode,
                 orgCode,
                 createdBy,
                 finYear,
@@ -41,25 +39,25 @@ export class CashInflowRepository {
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
-                `[USP_M_CASHINFLOW_IUD] action="${action}" failed: ${error.message}`, 500
+                `[USP_M_OTHEREXPENSES_IUD] action="${action}" failed: ${error.message}`, 500
             );
         }
 
     }
 
-    public async getAllCashInflowByOrg(
+    public async getAllOtherExpensesByOrg(
         orgCode: string,
         page: number,
         limit: number,
         search: string,
-    ): Promise<PaginatedResult<CashInflowResponseDto>> {
+    ): Promise<PaginatedResult<OtherExpensesResponseDto>> {
         try {
             const data = await AppDataSource.query(
-                USP_CASHINFLOW_ALLCASHINFLOWBYORG,
+                USP_OTHEREXPENSES_ALLEXPENSESBYORG,
                 [orgCode, page, limit, search || null]
             );
             const total: number = data[0][0]?.total ?? 0;
-            const rows: CashInflowResponseDto[] = data[1] ?? [];
+            const rows: OtherExpensesResponseDto[] = data[1] ?? [];
             const totalPages = Math.ceil(total / limit);
 
             return {
@@ -76,20 +74,20 @@ export class CashInflowRepository {
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
-                `[USP_M_CASHINFLOW_IUD] failed: ${error.message}`, 500
+                `[USP_OTHEREXPENSES_ALLEXPENSESBYORG] failed: ${error.message}`, 500
             );
         }
     }
-    public async getCashInflowDetailsByCifId(
+    public async getOtherExpensesDetailsById(
         cifId: number
-    ): Promise<CashInflowResponseDto> {
+    ): Promise<OtherExpensesResponseDto> {
         try {
-            const data = await AppDataSource.query(USP_CASHINFLOW_DETAILSBYCIFID, [cifId]);
+            const data = await AppDataSource.query(USP_OTHEREXPENSES_DETAILSBYID, [cifId]);
             return data[0][0] ?? {}
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
-                `[USP_M_CASHINFLOW_IUD] failed: ${error.message}`, 500
+                `[USP_OTHEREXPENSES_DETAILSBYID] failed: ${error.message}`, 500
             );
         }
     }
