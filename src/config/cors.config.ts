@@ -7,11 +7,11 @@ const IS_PROD = ENV === 'production';
 const ALLOWED_ORIGINS: string[] = IS_PROD
   ? (process.env.ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean)
   : [
-      'http://localhost:3000',
-      'http://localhost:5173', 
-      'http://localhost:4200',
-      'http://127.0.0.1:3000',
-    ];
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://localhost:4200',
+    'http://127.0.0.1:3000',
+  ];
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
