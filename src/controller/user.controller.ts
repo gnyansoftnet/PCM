@@ -4,15 +4,19 @@ import { LoginRequestDto } from "../dto/login.request.dto";
 import { CreateUserRequestDto } from "../dto/create-user.request.dto";
 import { generateAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { parseId } from "../utils/parse_id";
+import { asyncHandler } from "../middleware/async-handler";
 
-const userService = new UserService();
 
 export class UserController {
+    private readonly userService: UserService;
+    constructor() {
+        this.userService = new UserService();
+    }
 
     async login(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const body: LoginRequestDto = req.body;
-            const result = await userService.loginUser(body);
+            const result = await this.userService.loginUser(body);
             res.status(200).json({
                 success: true,
                 message: "Login successful",
@@ -49,7 +53,7 @@ export class UserController {
     async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const body: CreateUserRequestDto = req.body;
-            const data = await userService.createUser(body);
+            const data = await this.userService.createUser(body);
             res.status(201).json({
                 success: true,
                 message: "User created successfully",
@@ -69,7 +73,7 @@ export class UserController {
             }
 
             const body: CreateUserRequestDto = req.body;
-            const data = await userService.updateUser(userId, body);
+            const data = await this.userService.updateUser(userId, body);
             res.status(200).json({
                 success: true,
                 message: "User updated successfully",
@@ -85,7 +89,7 @@ export class UserController {
             const userId = parseId(req.params.userId, next);
             if (!userId) return;
 
-            const data = await userService.getUsersById(userId);
+            const data = await this.userService.getUsersById(userId);
             res.status(200).json({
                 success: true,
                 message: "User fetched successfully",
@@ -96,31 +100,46 @@ export class UserController {
         }
     }
 
-    async getUsersByOrgCode(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const orgCode = req.params.orgCode as string;
-            if (!orgCode) {
-                res.status(400).json({ success: false, message: "orgCode is required." });
-                return;
-            }
+    getUsersByOrgCode = asyncHandler(async (
+        req: Request,
+        res: Response
+    ) => {
+        const { orgCode, page, limit, search } = req.query as {
+            orgCode: string;
+            page?: string;
+            limit?: string;
+            search?: string;
+        };
 
-            const data = await userService.getUsersByOrgCode(orgCode);
-            res.status(200).json({
-                success: true,
-                message: "Successfully",
-                data
+        if (!orgCode) {
+            res.status(400).json({
+                success: false,
+                message: "orgCode is required"
             });
-        } catch (error) {
-            next(error);
+            return;
         }
-    }
+
+        const result = await this.userService.getUsersByOrgCode(
+            orgCode,
+            {
+                page: page ? parseInt(page) : 1,
+                limit: limit ? parseInt(limit) : 10,
+                search: search ?? "",
+            }
+        );
+
+        res.status(200).json({
+            success: true,
+            ...result
+        });
+    });
 
     async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = parseInt(req.params.id as string);
             if (!userId) return;
 
-            const data = await userService.deleteUser(userId);
+            const data = await this.userService.deleteUser(userId);
             res.status(200).json({
                 success: true,
                 message: "User deleted successfully",

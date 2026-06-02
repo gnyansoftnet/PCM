@@ -12,9 +12,11 @@ import { Role } from "../entity/Role";
 import { User } from "../entity/User";
 import { Organisation } from "../entity/Orgnaisation";
 import { Branch } from "../entity/Branch";
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { generateUserCode } from "../utils/user.code.generation";
 import { UserStatus } from "../enums/user.status.enum";
+import { PaginationQuery } from "../dto/pagination.query.dto";
+import { PaginatedResult } from "../dto/pagination.result.dto";
 
 const userRepo = AppDataSource.getRepository(User);
 const roleRepo = AppDataSource.getRepository(Role);
@@ -252,14 +254,56 @@ export class UserService {
 
     }
 
-    async getUsersByOrgCode(orgCode: string) {
-        return await userRepo.find({
-            where: {
-                orgCode: orgCode,
-                dflag: false,
+    async getUsersByOrgCode(
+        orgCode: string,
+        query: PaginationQuery
+    ): Promise<PaginatedResult<User>> {
+
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const skip = (page - 1) * limit;
+        const search = query.search?.trim() ?? "";
+
+        const whereClause = search
+            ? [
+                {
+                    orgCode,
+                    dflag: false,
+                    userName: ILike(`%${search}%`)
+                },
+                {
+                    orgCode,
+                    dflag: false,
+                    userCode: ILike(`%${search}%`)
+                }
+            ]
+            : {
+                orgCode,
+                dflag: false
+            };
+
+        const [data, total] = await userRepo.findAndCount({
+            where: whereClause,
+            skip,
+            take: limit,
+            order: {
+                createDate: "DESC"
             }
         });
 
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+            },
+        };
     }
     async getUsersById(userId: number) {
         return await userRepo.find({

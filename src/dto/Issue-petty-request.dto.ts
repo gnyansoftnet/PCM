@@ -1,4 +1,4 @@
-export interface IssueTripRequest {
+export interface IssuePettyRequest {
     action: string;
     issueId: number;
     voucherNo: string;
@@ -26,13 +26,13 @@ export interface IssueTripRequest {
 
 
 export interface PartyDetail {
-    partyCode: string;
-    partyAddress: string;
-    partyName: string;
+    Party_Code: string;
+    Party_Name: string;
+    Party_Address: string;
 }
 
 export interface RouteDetail {
-    routeId: number;
-    routeName: string;
-    routeNo: string;
+    Route_Id: number;
+    Route_Name: string;
+
 }

@@ -10,15 +10,12 @@ const router = Router();
 
 const partyController = new PartyController();
 
-const PARTY_PAGE_ID = 17;
-
-/* ---------------- MIDDLEWARE ---------------- */
+const PARTY_PAGE_ID = 10;
 
 router.use(authMiddleware);
 
-//router.use(permissionMiddleware(PARTY_PAGE_ID));
+router.use(permissionMiddleware(PARTY_PAGE_ID));
 
-/* ---------------- PARTY ROUTES ---------------- */
 router.post("/SaveParty", partyController.createParty.bind(partyController));
 
 router.get("/GetPartyList", partyController.getPartyList.bind(partyController));

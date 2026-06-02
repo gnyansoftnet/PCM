@@ -2,6 +2,8 @@ import { Repository } from "typeorm";
 import { Party } from "../entity/Party";
 import { AppDataSource } from "../config/database";
 import { AppError } from "../utils/app.error";
+import { PaginationQuery } from "../dto/pagination.query.dto";
+import { PaginatedResult } from "../dto/pagination.result.dto";
 
 export class PartyService {
 
@@ -26,17 +28,17 @@ export class PartyService {
         }
 
 
-const nameExists = await this.partyRepo
-    .createQueryBuilder("party")
-    .where("LOWER(party.Party_Name) = LOWER(:name)", {
-        name: data.Party_Name
-    })
-    .andWhere("party.Dflag = 0")
-    .getOne();
+        const nameExists = await this.partyRepo
+            .createQueryBuilder("party")
+            .where("LOWER(party.Party_Name) = LOWER(:name)", {
+                name: data.Party_Name
+            })
+            .andWhere("party.Dflag = 0")
+            .getOne();
 
-if (nameExists) {
-    throw new AppError("Party Name Already Exists", 400);
-}
+        if (nameExists) {
+            throw new AppError("Party Name Already Exists", 400);
+        }
         const lastParty = await this.partyRepo.find({
             order: { Party_Id: "DESC" },
             take: 1
@@ -64,39 +66,83 @@ if (nameExists) {
         return await this.partyRepo.save(party);
     }
 
-async getPartyList() {
-    return await this.partyRepo
-        .createQueryBuilder("p")
-        .leftJoin(
-            "tbl_01_m_route",
-            "r",
-            "r.Route_Id = p.Route_Id"
-        )
-        .select([
-            "p.Party_Id AS Party_Id",
-            "p.Party_Code AS Party_Code",
-            "p.Party_Name AS Party_Name",
-            "p.Party_Address AS Party_Address",
-            "p.Party_GSTIN AS Party_GSTIN",
-            "p.Contact_Person AS Contact_Person",
-            "p.Phone_No AS Phone_No",
-            "p.Email AS Email",
-            "p.SAPERP_Code AS SAPERP_Code",
-            "r.Route_Name AS Route",
-            "p.Route_Id AS Route_Id",
-            "p.Fin_Year AS Fin_Year",
-            "p.Org_Code AS Org_Code",
-            "p.Created_By AS Created_By",
-            "p.Created_Date AS Created_Date",
-            "p.Modified_By AS Modified_By",
-            "p.Modified_Date AS Modified_Date",
-            "p.Dflag AS Dflag"
-        ])
-        .where("p.Dflag = :dflag", { dflag: 0 })
-        .orderBy("p.Party_Id", "DESC")
-        .getRawMany();
-}
-    
+
+
+    async getPartyList(
+        query: PaginationQuery,
+    ): Promise<PaginatedResult<any>> {
+
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const skip = (page - 1) * limit;
+        const search = query.search?.trim() ?? "";
+
+        const qb = this.partyRepo
+            .createQueryBuilder("p")
+            .leftJoin(
+                "tbl_01_m_route",
+                "r",
+                "r.Route_Id = p.Route_Id"
+            )
+            .select([
+                "p.Party_Id AS Party_Id",
+                "p.Party_Code AS Party_Code",
+                "p.Party_Name AS Party_Name",
+                "p.Party_Address AS Party_Address",
+                "p.Party_GSTIN AS Party_GSTIN",
+                "p.Contact_Person AS Contact_Person",
+                "p.Phone_No AS Phone_No",
+                "p.Email AS Email",
+                "p.SAPERP_Code AS SAPERP_Code",
+                "r.Route_Name AS Route",
+                "p.Route_Id AS Route_Id",
+                "p.Fin_Year AS Fin_Year",
+                "p.Org_Code AS Org_Code",
+                "p.Created_By AS Created_By",
+                "p.Created_Date AS Created_Date",
+                "p.Modified_By AS Modified_By",
+                "p.Modified_Date AS Modified_Date",
+                "p.Dflag AS Dflag"
+            ])
+            .where("p.Dflag = :dflag", { dflag: 0 });
+
+        if (search) {
+            qb.andWhere(
+                `(
+                p.Party_Code LIKE :search
+                OR p.Party_Name LIKE :search
+                OR p.Party_Address LIKE :search
+                OR p.Phone_No LIKE :search
+                OR p.Contact_Person LIKE :search
+                OR r.Route_Name LIKE :search
+            )`,
+                { search: `%${search}%` }
+            );
+        }
+
+        const total = await qb.getCount();
+
+        const data = await qb
+            .orderBy("p.Party_Id", "DESC")
+            .skip(skip)
+            .take(limit)
+            .getRawMany();
+
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+            },
+        };
+    }
+
 
     async getPartyById(id: number): Promise<Party> {
 

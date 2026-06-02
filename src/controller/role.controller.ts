@@ -1,15 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import { RoleService } from "../service/role.service";
+import { asyncHandler } from "../middleware/async-handler";
 
-const roleService = new RoleService();
 
 export class RoleController {
+    private roleService: RoleService;
+
+    constructor() {
+        this.roleService = new RoleService();
+    }
 
     async createRole(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { roleName, orgCode, createdBy } = req.body;
 
-            const role = await roleService.createRole(roleName, orgCode, createdBy);
+            const role = await this.roleService.createRole(roleName, orgCode, createdBy);
             res.status(201).json({
                 success: true,
                 message: "Role created successfully.",
@@ -30,7 +35,7 @@ export class RoleController {
 
             const { modifiedBy, roleName, orgCode } = req.body;
 
-            const role = await roleService.updateRole(roleId, modifiedBy, roleName, orgCode);
+            const role = await this.roleService.updateRole(roleId, modifiedBy, roleName, orgCode);
             res.status(200).json({
                 success: true,
                 message: "Role updated successfully.",
@@ -49,7 +54,7 @@ export class RoleController {
                 return;
             }
 
-            const result = await roleService.deleteRole(roleId);
+            const result = await this.roleService.deleteRole(roleId);
             res.status(200).json({
                 success: true,
                 message: result,
@@ -67,7 +72,7 @@ export class RoleController {
                 return;
             }
 
-            const role = await roleService.getRoleById(roleId);
+            const role = await this.roleService.getRoleById(roleId);
             res.status(200).json({
                 success: true,
                 data: role,
@@ -77,18 +82,28 @@ export class RoleController {
         }
     }
 
-    async getAllRoles(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const roles = await roleService.getAllRoles();
-            res.status(200).json({
-                success: true,
-                count: roles.length,
-                data: roles,
-            });
-        } catch (error) {
-            next(error);
-        }
-    }
+    getAllRoles = asyncHandler(async (
+        req: Request,
+        res: Response
+    ) => {
+
+        const { page, limit, search } = req.query as {
+            page?: string;
+            limit?: string;
+            search?: string;
+        };
+
+        const result = await this.roleService.getAllRoles({
+            page: page ? parseInt(page) : 1,
+            limit: limit ? parseInt(limit) : 10,
+            search: search ?? "",
+        });
+
+        res.status(200).json({
+            success: true,
+            ...result,
+        });
+    });
 
     async getRoleAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -110,7 +125,7 @@ export class RoleController {
                 return;
             }
 
-            const result = await roleService.getRoleAccessService(orgCode, roleId, action);
+            const result = await this.roleService.getRoleAccessService(orgCode, roleId, action);
             res.status(200).json({
                 success: true,
                 data: result,

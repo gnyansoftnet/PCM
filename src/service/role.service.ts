@@ -1,9 +1,11 @@
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { AppDataSource } from "../config/database";
 import { Organisation } from "../entity/Orgnaisation";
 import { Role } from "../entity/Role";
 import { User } from "../entity/User";
 import { AppError } from "../utils/app.error";
+import { PaginationQuery } from "../dto/pagination.query.dto";
+import { PaginatedResult } from "../dto/pagination.result.dto";
 
 export class RoleService {
     private roleRepo: Repository<Role>;
@@ -99,11 +101,45 @@ export class RoleService {
         return role;
     }
 
-    async getAllRoles(): Promise<Role[]> {
-        return await this.roleRepo.find({
-            where: { dflag: false },
+    async getAllRoles(
+        query: PaginationQuery
+    ): Promise<PaginatedResult<Role>> {
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const skip = (page - 1) * limit;
+        const search = query.search?.trim() ?? "";
+
+        const whereClause = search
+            ? [
+                {
+                    dflag: false,
+                    roleName: ILike(`%${search}%`)
+                }
+            ]
+            : {
+                dflag: false
+            };
+
+        const [data, total] = await this.roleRepo.findAndCount({
+            where: whereClause,
             order: { roleId: "DESC" },
+            skip,
+            take: limit,
         });
+
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+            },
+        };
     }
 
     async deleteRole(roleId: number): Promise<string> {
