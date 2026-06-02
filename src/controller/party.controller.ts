@@ -61,14 +61,20 @@ export class PartyController {
         next: NextFunction
     ): Promise<void> {
         try {
-
-            const { page, limit, search } = req.query as {
+            const { page, limit, search, orgCode } = req.query as {
                 page?: string;
                 limit?: string;
                 search?: string;
+                orgCode?: string;
             };
 
-            const result = await partyService.getPartyList({
+            if (!orgCode) {
+                res.status(400).json({ success: false, message: "orgCode query param is required" });
+                return;
+            }
+            console.log(req.query);
+
+            const result = await partyService.getPartyList(orgCode, {
                 page: page ? parseInt(page) : 1,
                 limit: limit ? parseInt(limit) : 10,
                 search: search ?? "",

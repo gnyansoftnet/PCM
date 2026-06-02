@@ -10,7 +10,7 @@ const VEHICLE_PAGE_ID = 7;
 router.use(authMiddleware);
 router.use(permissionMiddleware(VEHICLE_PAGE_ID));
 
-router.get("/getUsersByOrgCode/:orgCode", userController.getUsersByOrgCode.bind(userController));
+router.get("/getUsersByOrgCode", userController.getUsersByOrgCode.bind(userController));
 router.get("/getVehicleById/:id", userController.getUserById.bind(userController));
 router.post("/createUser", userController.createUser.bind(userController));
 router.put("/updateUser/:userId", userController.updateUser.bind(userController));

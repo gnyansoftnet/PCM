@@ -69,6 +69,7 @@ export class PartyService {
 
 
     async getPartyList(
+        orgCode: string,
         query: PaginationQuery,
     ): Promise<PaginatedResult<any>> {
 
@@ -104,7 +105,8 @@ export class PartyService {
                 "p.Modified_Date AS Modified_Date",
                 "p.Dflag AS Dflag"
             ])
-            .where("p.Dflag = :dflag", { dflag: 0 });
+            .where("p.Dflag = :dflag", { dflag: 0 })
+            .andWhere("p.Org_Code = :orgCode", { orgCode });
 
         if (search) {
             qb.andWhere(
@@ -122,11 +124,15 @@ export class PartyService {
 
         const total = await qb.getCount();
 
-        const data = await qb
+
+        const query1 = qb
             .orderBy("p.Party_Id", "DESC")
-            .skip(skip)
-            .take(limit)
-            .getRawMany();
+            .limit(limit)
+            .offset(skip);
+
+        console.log(query1.getSql());
+
+        const data = await query1.getRawMany();
 
         const totalPages = Math.ceil(total / limit);
 

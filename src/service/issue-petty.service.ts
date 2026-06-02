@@ -71,5 +71,8 @@ export class IssuePettyService {
         return this.issuePettyRepo.getIssuePettyByVoucherNumber(voucherNumber);
     }
 
+    async getPartyByRoutes(routes: string): Promise<any[]> {
+        return this.issuePettyRepo.getPartyByRoutes(routes);
+    }
 
 }

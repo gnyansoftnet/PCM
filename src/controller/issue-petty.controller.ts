@@ -50,6 +50,22 @@ export class IssuePettyController {
         });
 
     })
+    getPartyByRoutes = asyncHandler(async (req: Request, res: Response) => {
+        const {
+            routes
+        } = req.body;
+
+        this.validate(routes, 'routes');
+        const result = await this.issuePettyService.getPartyByRoutes(routes);
+        res.status(
+            200
+        ).json({
+            success: true,
+            type: 'SUCCESS',
+            result,
+        });
+
+    })
 
     saveUpdateDeleteIssuePetty = asyncHandler(
         async (req: Request, res: Response) => {
@@ -160,6 +176,7 @@ export class IssuePettyController {
             });
         }
     );
+
 
 
     private validate(value: any, field: string): void {

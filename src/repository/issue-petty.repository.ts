@@ -8,6 +8,7 @@ import { AppError } from "../utils/app.error";
 const USP_M_Issue_Trip_IUD = 'CALL USP_M_Issue_Trip_IUD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_msg)';
 const USP_M_Cash_Issue_Trip_DTL = 'CALL USP_M_Cash_Issue_Trip_DTL(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
+const USP_M_Party_DTL = 'CALL USP_M_Party_DTL(?,?)';
 
 export class IssuePettyRepository {
     async saveUpdateDeleteIssuePetty(
@@ -116,6 +117,22 @@ export class IssuePettyRepository {
                 `[USP_M_Cash_Issue_Trip_DTL] failed: ${error.message}`, 500
             );
         }
+    }
+
+    async getPartyByRoutes(routes: string): Promise<any[]> {
+        try {
+            const data = await AppDataSource.query(
+                USP_M_Party_DTL,
+                ["GET_PARTY_BY_ROUTE", routes]
+            );
+            return data[0] ?? []
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(
+                `[USP_M_Party_DTL] failed: ${error.message}`, 500
+            );
+        }
+
     }
 
 
