@@ -56,6 +56,7 @@ export class VehicleService {
         if (existvehicle) {
             throw new AppError('THis vehocel number is exist', 400);
         }
+        const finYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
         const vehicle = this.vehicleRepo.create({
             vehicleNo: data.vehicleNo,
@@ -65,6 +66,7 @@ export class VehicleService {
             caseApprox: data.caseApprox,
             orgCode: data.orgCode,
             createdBy: data.createdBy,
+            finYear: finYear,
             dflag: false
         });
         return await this.vehicleRepo.save(vehicle);
