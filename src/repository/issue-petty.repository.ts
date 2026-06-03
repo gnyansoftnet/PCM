@@ -111,7 +111,8 @@ export class IssuePettyRepository {
                     null, null
                 ]
             );
-            return data[0][0] ?? {}
+            const [issueDetails, party, routes] = data ?? {};
+            return { issueDetails, party, routes };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
@@ -137,7 +138,7 @@ export class IssuePettyRepository {
                     null, null
                 ]
             );
-            const [issueDetails, party, routes] = data;
+            const [issueDetails, party, routes] = data??{};
             return { issueDetails, party, routes };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
