@@ -19,6 +19,7 @@ import { corsLogger } from "./utils/cors-logger";
 import { corsErrorHandler, corsMiddleware, handlePreflight } from "./middleware/cors.middleware";
 import otherExpensesRoute from "./routes/other-expenses.route";
 import issuePettyRoute from "./routes/issue-petty.route";
+import tripSettelmentRoute from "./routes/trip-settelment.route";
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use("/api/cash-inflow", cashInflowRoute);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/other-expenses", otherExpensesRoute);
 app.use("/api/issue-petty", issuePettyRoute);
+app.use("/api/trip-settelment", tripSettelmentRoute);
 
 
 app.use((req: express.Request, res: express.Response) => {
