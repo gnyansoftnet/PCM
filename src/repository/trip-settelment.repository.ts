@@ -1,56 +1,53 @@
 import { AppDataSource } from "../config/database";
-import { IssuePettyRequest } from "../dto/Issue-petty-request.dto";
-import { IssuePettyResponseDto } from "../dto/issue-trip-response.dt";
 import { PaginatedResult } from "../dto/pagination.result.dto";
-import { OperationAction } from "../enums/operation-action.enum";
+import { TripSettelmentRequest } from "../dto/trip-settelment-request.dt";
 import { AppError } from "../utils/app.error";
 
-const USP_M_Issue_Trip_IUD = 'CALL USP_M_Issue_Trip_IUD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_msg)';
-const USP_M_Cash_Issue_Trip_DTL = 'CALL USP_M_Cash_Issue_Trip_DTL(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-const USP_M_Party_DTL = 'CALL USP_M_Party_DTL(?,?)';
 
-export class IssuePettyRepository {
-    async saveUpdateDeleteIssuePetty(
-        request: IssuePettyRequest
+const USP_M_Issue_Trip_IUD = 'CALL USP_T_Trip_Settelment_IUD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_msg)';
+const USP_T_Trip_Settelment_DTL = 'CALL USP_T_Trip_Settelment_DTL(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+const USP_M_Cash_Issue_Trip_DTL = 'CALL USP_M_Cash_Issue_Trip_DTL(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+
+
+export class TripSettelmentRepository {
+    async saveUpdateDeleteTripSettelment(
+        request: TripSettelmentRequest
     ): Promise<string> {
         try {
             await AppDataSource.query(USP_M_Issue_Trip_IUD, [
-                request.action,
-                request.issueId,
-                request.voucherNo,
-                request.issueDate,
-                request.driverId,
-                request.vehicleId,
-                request.issueRouteId,
-                request.partyCode,
-                request.driverMobile,
-                request.vehicleNo,
-                request.driverName,
-                request.vehicleType,
-                request.issueAmount,
-                request.remarks,
-                request.orgCode,
-                request.createdBy,
-                request.cartonQuantity,
-                request.gatepassNo,
-                request.petrolPumpVoucher,
-                request.dieselQuantity,
-                request.finYear,
-                JSON.stringify(request.partyDtlJson),
-                JSON.stringify(request.routeDtlJson)
+                request.Action,
+                request.Issue_Id,
+                request.Voucher_No,
+                request.UpdateVoucher_No,
+                request.Issue_Date,
+                request.Settelment_Date,
+                request.Driver_Id,
+                request.Vehicle_Id,
+                request.Issue_Route_Id,
+                request.Driver_Mobile,
+                request.Issue_Amount,
+                request.Payble,
+                request.Receivable,
+                request.Grand_Total,
+                request.Remarks,
+                request.Route_Name,
+                JSON.stringify(request.HeadDtls),
+                request.Org_Code,
+                request.Created_By,
+                request.Fin_Year,
             ])
             return await this.readAndHandleMsg();
 
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
-                `[USP_M_Issue_Trip_IUD] action="${request.action}" failed: ${error.message}`, 500
+                `[USP_M_Issue_Trip_IUD] action="${request.Action}" failed: ${error.message}`, 500
             );
         }
 
     }
 
-    public async getAllIssuesPettty(
+    public async getAllTripSettlement(
         orgCode: string,
         userCode: string,
         fromDate: string,
@@ -58,22 +55,21 @@ export class IssuePettyRepository {
         page: number,
         limit: number,
         search: string,
-    ): Promise<PaginatedResult<IssuePettyResponseDto>> {
+    ): Promise<PaginatedResult<any>> {
         try {
             const data = await AppDataSource.query(
-                USP_M_Cash_Issue_Trip_DTL,
+                USP_T_Trip_Settelment_DTL,
                 ["TODAY_ISSUE_All",
                     null, null,
-                    null, null,
-                    limit, page,
+                    null, limit, page,
                     null, null,
                     fromDate, toDate,
                     orgCode, userCode,
-                    null, null, null, search || null]
+                    null, search || null]
             );
             console.log(data);
             const total: number = data[0][0]?.total ?? 0;
-            const rows: IssuePettyResponseDto[] = data[0] ?? [];
+            const rows: any[] = data[0] ?? [];
             const totalPages = Math.ceil(total / limit);
 
             return {
@@ -90,17 +86,41 @@ export class IssuePettyRepository {
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
-                `[USP_M_Cash_Issue_Trip_DTL] failed: ${error.message}`, 500
+                `[USP_T_Trip_Settelment_DTL] failed: ${error.message}`, 500
             );
         }
     }
-    public async getIssuePettyByVoucherNumber(
+    public async getTripSettelmentVoucherNumber(
+        voucherNo: string
+    ): Promise<any> {
+        try {
+            const data = await AppDataSource.query(
+                USP_T_Trip_Settelment_DTL,
+                ["GET_TRIP_BY_VOUCHER",
+                    null, null,
+                    voucherNo,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null]
+            );
+            const [tripDetails, headDetails, routes] = data;
+            return { tripDetails, headDetails, routes };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(
+                `[GET_TRIP_BY_VOUCHER] failed: ${error.message}`, 500
+            );
+        }
+    }
+    public async getTripSettelmentPrintByVoucherNumber(
         voucherNo: string
     ): Promise<any> {
         try {
             const data = await AppDataSource.query(
                 USP_M_Cash_Issue_Trip_DTL,
-                ["GET_ISSUE_CASH_ALL",
+                ["GET_ISSUE_SETTELMENT_PRINT",
                     null, null,
                     null, voucherNo,
                     null, null,
@@ -111,7 +131,8 @@ export class IssuePettyRepository {
                     null, null
                 ]
             );
-            return data[0][0] ?? {}
+            const [issueDetails, headDetails] = data;
+            return { issueDetails, headDetails };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
@@ -120,48 +141,7 @@ export class IssuePettyRepository {
         }
     }
 
-    public async getIssuePettyPrintByVoucherNumber(
-        voucherNo: string
-    ): Promise<any> {
-        try {
-            const data = await AppDataSource.query(
-                USP_M_Cash_Issue_Trip_DTL,
-                ["GET_ISSUE_PRINT",
-                    null, null,
-                    null, voucherNo,
-                    null, null,
-                    null, null,
-                    null, null,
-                    null, null,
-                    null, null,
-                    null, null
-                ]
-            );
-            const [issueDetails, party, routes] = data;
-            return { issueDetails, party, routes };
-        } catch (error: any) {
-            if (error instanceof AppError) throw error;
-            throw new AppError(
-                `[USP_M_Cash_Issue_Trip_DTL] failed: ${error.message}`, 500
-            );
-        }
-    }
 
-    async getPartyByRoutes(routes: string): Promise<any[]> {
-        try {
-            const data = await AppDataSource.query(
-                USP_M_Party_DTL,
-                ["GET_PARTY_BY_ROUTE", routes]
-            );
-            return data[0] ?? []
-        } catch (error: any) {
-            if (error instanceof AppError) throw error;
-            throw new AppError(
-                `[USP_M_Party_DTL] failed: ${error.message}`, 500
-            );
-        }
-
-    }
 
 
 

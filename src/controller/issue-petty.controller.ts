@@ -50,6 +50,22 @@ export class IssuePettyController {
         });
 
     })
+    getIssuePettyPrintByVoucherNumber = asyncHandler(async (req: Request, res: Response) => {
+        const {
+            voucherNumber
+        } = req.body;
+
+        this.validate(voucherNumber, 'voucherNumber');
+        const result = await this.issuePettyService.getIssuePettyPrintByVoucherNumber(voucherNumber);
+        res.status(
+            200
+        ).json({
+            success: true,
+            type: 'SUCCESS',
+            result,
+        });
+
+    })
     getPartyByRoutes = asyncHandler(async (req: Request, res: Response) => {
         const {
             routes
