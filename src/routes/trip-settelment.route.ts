@@ -12,6 +12,7 @@ router.use(permissionMiddleware(CASHINFLOW_PAGE_ID));
 
 router.post("/saveUpdateDeleteTripSettelment", tripSettelmentController.saveUpdateDeleteTripSettelment.bind(tripSettelmentController));
 router.get("/getAllTripSettlement/:orgCode/:userCode", tripSettelmentController.getAllTripSettlement.bind(tripSettelmentController));
+router.get("/getPendingTripSettlement/:orgCode/:userCode", tripSettelmentController.getPendingTripSettlement.bind(tripSettelmentController));
 router.post("/getTripSettelmentPrintByVoucherNumber", tripSettelmentController.getTripSettelmentPrintByVoucherNumber.bind(tripSettelmentController));
 router.post("/getTripSettelmentByVoucherNumber", tripSettelmentController.getTripSettelmentByVoucherNumber.bind(tripSettelmentController));
 

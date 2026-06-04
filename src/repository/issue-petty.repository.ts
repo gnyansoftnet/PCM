@@ -58,7 +58,7 @@ export class IssuePettyRepository {
         page: number,
         limit: number,
         search: string,
-    ): Promise<PaginatedResult<IssuePettyResponseDto>> {
+    ): Promise<PaginatedResult<any>> {
         try {
             const data = await AppDataSource.query(
                 USP_M_Cash_Issue_Trip_DTL,
@@ -72,10 +72,9 @@ export class IssuePettyRepository {
                     null, null, null, search || null]
             );
             console.log(data);
-            const total: number = data[0][0]?.total ?? 0;
-            const rows: IssuePettyResponseDto[] = data[0] ?? [];
+            const rows: any[] = Array.isArray(data[0]) ? data[0] : [];
+            const total: number = rows.length > 0 ? Number(rows[0].PageSize) : 0;
             const totalPages = Math.ceil(total / limit);
-
             return {
                 data: rows,
                 meta: {
@@ -138,7 +137,7 @@ export class IssuePettyRepository {
                     null, null
                 ]
             );
-            const [issueDetails, party, routes] = data??{};
+            const [issueDetails, party, routes] = data ?? {};
             return { issueDetails, party, routes };
         } catch (error: any) {
             if (error instanceof AppError) throw error;

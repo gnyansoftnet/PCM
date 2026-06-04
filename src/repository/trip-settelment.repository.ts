@@ -68,10 +68,51 @@ export class TripSettelmentRepository {
                     null, search || null]
             );
             console.log(data);
-            const total: number = data[0][0]?.total ?? 0;
-            const rows: any[] = data[0] ?? [];
+            const rows: any[] = Array.isArray(data[0]) ? data[0] : [];
+            const total: number = rows.length > 0 ? Number(rows[0].PageSize) : 0;
             const totalPages = Math.ceil(total / limit);
 
+            return {
+                data: rows,
+                meta: {
+                    total,
+                    page,
+                    limit,
+                    totalPages,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1,
+                },
+            };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(
+                `[USP_T_Trip_Settelment_DTL] failed: ${error.message}`, 500
+            );
+        }
+    }
+    public async getPendingTripSettlement(
+        orgCode: string,
+        userCode: string,
+        page: number,
+        limit: number,
+    ): Promise<PaginatedResult<any>> {
+        try {
+            const data = await AppDataSource.query(
+                USP_M_Cash_Issue_Trip_DTL,
+                ["ISSUE_All_PENDING_LIST",
+                    null, null,
+                    null, null,
+                    limit, page,
+                    null, null,
+                    null, null,
+                    orgCode, userCode,
+                    null, null,
+                    null, null,]
+            );
+            console.log(data);
+            const rows: any[] = Array.isArray(data[0]) ? data[0] : [];
+            const total: number = rows.length > 0 ? Number(rows[0].PageSize) : 0;
+            const totalPages = Math.ceil(total / limit);
             return {
                 data: rows,
                 meta: {

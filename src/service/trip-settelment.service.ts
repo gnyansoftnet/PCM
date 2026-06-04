@@ -70,6 +70,17 @@ export class TripSettelmentService {
         const search = query.search?.trim() ?? "";
         return this.tripSettelmentRepo.getAllTripSettlement(orgCode, userCode, fromDate, toDate, page, limit, search);
     }
+    async getPendingTripSettlement(
+        orgCode: string,
+        userCode: string,
+        query: PaginationQuery,
+    ): Promise<PaginatedResult<any>> {
+        const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode, Dflag: 0 } });
+        if (!existOrg) throw new AppError("Organisation not found", 404);
+        const page = Math.max(1, query.page ?? 1);
+        const limit = Math.min(100, Math.max(1, query.limit ?? 10));
+        return this.tripSettelmentRepo.getPendingTripSettlement(orgCode, userCode, page, limit);
+    }
 
     async getTripSettelmentByVoucherNumber(voucherNumber: string): Promise<any> {
         return this.tripSettelmentRepo.getTripSettelmentVoucherNumber(voucherNumber);

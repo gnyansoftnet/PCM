@@ -35,6 +35,23 @@ export class TripSettelmentController {
         res.status(200).json({ success: true, type: 'SUCCESS', result: data, meta });
 
     })
+    getPendingTripSettlement = asyncHandler(async (req: Request, res: Response) => {
+        const orgCode = req.params.orgCode as string;
+        const userCode = req.params.userCode as string;
+        this.validate(orgCode, 'orgCode');
+        this.validate(userCode, 'userCode');
+
+        const query: PaginationQuery = {
+            page: req.query.page ? Number(req.query.page) : undefined,
+            limit: req.query.limit ? Number(req.query.limit) : undefined,
+            search: req.query.search as string | undefined,
+        };
+
+        const { data, meta } = await this.tripSettelmentService.getPendingTripSettlement(orgCode, userCode, query);
+
+        res.status(200).json({ success: true, type: 'SUCCESS', result: data, meta });
+
+    })
     getTripSettelmentByVoucherNumber = asyncHandler(async (req: Request, res: Response) => {
         const {
             voucherNumber
