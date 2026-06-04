@@ -12,8 +12,8 @@ router.use(permissionMiddleware(CASHINFLOW_PAGE_ID));
 
 router.post("/saveUpdateDeleteIssuePetty", issuePettyController.saveUpdateDeleteIssuePetty.bind(issuePettyController));
 router.get("/getAllIssuesPettty/:orgCode/:userCode", issuePettyController.getAllIssuesPettty.bind(issuePettyController));
-router.get("/getIssuePettyByVoucherNumber", issuePettyController.getIssuePettyByVoucherNumber.bind(issuePettyController));
-router.get("/getIssuePettyPrintByVoucherNumber", issuePettyController.getIssuePettyPrintByVoucherNumber.bind(issuePettyController));
+router.post("/getIssuePettyByVoucherNumber", issuePettyController.getIssuePettyByVoucherNumber.bind(issuePettyController));
+router.post("/getIssuePettyPrintByVoucherNumber", issuePettyController.getIssuePettyPrintByVoucherNumber.bind(issuePettyController));
 router.post("/getPartyByRoutes", issuePettyController.getPartyByRoutes.bind(issuePettyController));
 
 export default router;
