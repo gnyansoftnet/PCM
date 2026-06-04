@@ -117,7 +117,7 @@ export class TripSettelmentController {
             }
 
             if (tripSettelmentRequest.Action === OperationAction.DELETE) {
-                this.validate(tripSettelmentRequest.Issue_Id, "Issue_Id");
+                this.validate(tripSettelmentRequest.Voucher_No, "Voucher_No");
             }
 
             const message =

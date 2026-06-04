@@ -117,7 +117,6 @@ export class IssuePettyController {
 
             if (action === OperationAction.INSERT) {
                 this.validate(driverName, "driverName");
-
                 this.validate(issueDate, "issueDate");
                 this.validate(driverId, "driverId");
                 this.validate(vehicleId, "vehicleId");
@@ -153,7 +152,7 @@ export class IssuePettyController {
             }
 
             if (action === OperationAction.DELETE) {
-                this.validate(issueId, "issueId");
+                this.validate(voucherNo, "voucherNo");
             }
 
             const message =
