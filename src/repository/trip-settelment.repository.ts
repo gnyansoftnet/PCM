@@ -131,6 +131,41 @@ export class TripSettelmentRepository {
             );
         }
     }
+
+
+    public async getIsseueCashByVoucherNumber(
+        orgCode: string,
+        userCode: string,
+        voucherNumber: string,
+
+    ): Promise<any> {
+        try {
+            const data = await AppDataSource.query(
+                USP_M_Cash_Issue_Trip_DTL,
+                ["GET_ISSUE_CASH_ALL",
+                    null, null,
+                    null, voucherNumber,
+                    null, null,
+                    null, null,
+                    null, null,
+                    orgCode, userCode,
+                    null, null,
+                    null, null,]
+            );
+            console.log(data);
+            const issue: any[] = Array.isArray(data[0]) ? data[0] : [];
+            const party: any[] = Array.isArray(data[1]) ? data[1] : [];
+            const routes: any[] = Array.isArray(data[2]) ? data[2] : [];
+            return {
+                data: { issue, party, routes }
+            };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(
+                `[USP_M_Cash_Issue_Trip_DTL] failed: ${error.message}`, 500
+            );
+        }
+    }
     public async getTripSettelmentVoucherNumber(
         voucherNo: string
     ): Promise<any> {

@@ -81,6 +81,15 @@ export class TripSettelmentService {
         const limit = Math.min(100, Math.max(1, query.limit ?? 10));
         return this.tripSettelmentRepo.getPendingTripSettlement(orgCode, userCode, page, limit);
     }
+    async getIsseueCashByVoucherNumber(
+        orgCode: string,
+        userCode: string,
+        voucherNumber: string,
+    ): Promise<any> {
+        const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode, Dflag: 0 } });
+        if (!existOrg) throw new AppError("Organisation not found", 404);
+        return this.tripSettelmentRepo.getIsseueCashByVoucherNumber(orgCode, userCode, voucherNumber);
+    }
 
     async getTripSettelmentByVoucherNumber(voucherNumber: string): Promise<any> {
         return this.tripSettelmentRepo.getTripSettelmentVoucherNumber(voucherNumber);

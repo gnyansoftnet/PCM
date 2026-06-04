@@ -52,6 +52,20 @@ export class TripSettelmentController {
         res.status(200).json({ success: true, type: 'SUCCESS', result: data, meta });
 
     })
+    getIsseueCashByVoucherNumber = asyncHandler(async (req: Request, res: Response) => {
+        const orgCode = req.query.orgCode as string;
+        const userCode = req.query.userCode as string;
+        const voucherNumber = req.query.voucherNumber as string;
+        this.validate(orgCode, 'orgCode');
+        this.validate(userCode, 'userCode');
+        this.validate(voucherNumber, 'voucherNumber');
+
+
+        const { data } = await this.tripSettelmentService.getIsseueCashByVoucherNumber(orgCode, userCode, voucherNumber);
+
+        res.status(200).json({ success: true, type: 'SUCCESS', result: data });
+
+    })
     getTripSettelmentByVoucherNumber = asyncHandler(async (req: Request, res: Response) => {
         const {
             voucherNumber
