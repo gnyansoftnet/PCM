@@ -108,5 +108,5 @@ export class RouteMaster {
         nullable: true,
         default: false,
     })
-    dflag?: boolean;
+    dflag?: number;
 }

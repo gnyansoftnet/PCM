@@ -1,5 +1,4 @@
 import { Repository } from "typeorm";
-import { Vehicle } from "../entity/Vehicle";
 import { AppDataSource } from "../config/database";
 import { AppError } from "../utils/app.error";
 import { Organisation } from "../entity/Orgnaisation";
@@ -51,7 +50,7 @@ export class RouteService {
             routeNo: data.routeNo,
             orgCode: data.orgCode,
             createdBy: data.createdBy,
-            dflag: false,
+            dflag: 0,
         });
 
         return await this.routeRepo.save(route);
@@ -64,7 +63,7 @@ export class RouteService {
 
 
         const existing = await this.routeRepo.findOne({
-            where: { routeId, dflag: false },
+            where: { routeId, dflag: 0 },
         });
         if (!existing) {
             throw new AppError(`Route with ID ${routeId} not found or is deleted.`, 404);
@@ -90,7 +89,7 @@ export class RouteService {
                 where: {
                     routeCode: data.routeCode,
                     orgCode: data.orgCode ?? existing.orgCode,
-                    dflag: false,
+                    dflag: 0,
                 },
             });
             if (duplicate) {
@@ -119,7 +118,7 @@ export class RouteService {
     async deleteRoute(routeId: number, modifiedBy: string): Promise<{ message: string }> {
 
         const existing = await this.routeRepo.findOne({
-            where: { routeId, dflag: false },
+            where: { routeId, dflag: 0 },
         });
         if (!existing) {
             throw new AppError(`Route with ID ${routeId} not found or already deleted.`, 404);
@@ -132,7 +131,7 @@ export class RouteService {
             throw new AppError("User Not Found", 404);
         }
 
-        existing.dflag = true;
+        existing.dflag = 1;
         existing.modifiedBy = modifiedBy;
         await this.routeRepo.save(existing);
 
@@ -143,7 +142,7 @@ export class RouteService {
     async getRouteById(routeId: number): Promise<RouteMaster> {
 
         const route = await this.routeRepo.findOne({
-            where: { routeId, dflag: false },
+            where: { routeId, dflag: 0 },
         });
 
         if (!route) {
@@ -167,7 +166,7 @@ export class RouteService {
         const search = query.search?.trim() ?? "";
 
         // Base filter always applied
-        const baseWhere = { orgCode, dflag: false as any };
+        const baseWhere = { orgCode: orgCode, dflag: 0 };
 
         // Search across routeName, routeCode, routeNo, routeFrom, routeTo
         const whereClause = search
@@ -182,15 +181,19 @@ export class RouteService {
 
         const [data, total] = await this.routeRepo.findAndCount({
             where: whereClause,
-            order: { createdDate: "DESC" },
-            skip,
+            skip: skip,
             take: limit,
+
+            order: { routeId: 'ASC' },
         });
+        const uniqueData = Array.from(
+            new Map(data.map(item => [item.routeName, item])).values()
+        );
 
         const totalPages = Math.ceil(total / limit);
 
         return {
-            data,
+            data: uniqueData,
             meta: {
                 total,
                 page,

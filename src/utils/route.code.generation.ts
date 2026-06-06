@@ -6,7 +6,7 @@ export const generateRouteCode = async (): Promise<string> => {
     const routeRepo = AppDataSource.getRepository(RouteMaster);
 
     const lastRoute = await routeRepo.findOne({
-        where: { dflag: false },
+        where: { dflag: 0 },
         order: { routeId: "DESC" },
         select: {
             routeCode: true,
