@@ -1,61 +1,33 @@
+import { Repository } from "typeorm";
 import { AppDataSource } from "../config/database";
+import { ReportRequestDto } from "../dto/report-request.dto";
+import { User } from "../entity/User";
+import { Organisation } from "../entity/Orgnaisation";
+import ReportRepository from "../repository/report.repository";
+import { AppError } from "../utils/app.error";
+import { PaginationQuery } from "../dto/pagination.query.dto";
 
-interface ReportParams {
-  p_Action: string;
-  p_Issue_Id?: number;
-  p_Driver_Id?: number;
-  p_Voucher_No?: string;
-  p_DisplayLength: number;
-  p_DisplayStart: number;
-  p_SortCol?: number;
-  p_SortDir?: string;
-  p_From_Date?: string;
-  p_To_Date?: string;
-  p_Org_Code?: string;
-  p_User_Code?: string;
-  p_Fin_Year?: string;
-  p_Vehicle_Type?: string;
-  p_Vehicle_No?: string;
-  p_Type?: string;
-  p_Route?: number;
-  p_Search?: string;
-}
 
 class ReportService {
-  static async getAllReports(params: ReportParams) {
-    const sql = `CALL USP_R_ALL_REPORT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-    const values = [
-      params.p_Action,
-      params.p_Issue_Id || null,
-      params.p_Driver_Id || null,
-      params.p_Voucher_No || null,
-      params.p_DisplayLength,
-      params.p_DisplayStart,
-      params.p_SortCol || null,
-      params.p_SortDir || null,
-      params.p_From_Date || null,
-      params.p_To_Date || null,
-      params.p_Org_Code || null,
-      params.p_User_Code || null,
-      params.p_Fin_Year || null,
-      params.p_Vehicle_Type || null,
-      params.p_Vehicle_No || null,
-      params.p_Type || null,
-      params.p_Route || null,
-      params.p_Search || null,
-    ];
-
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-
-    try {
-      const result = await queryRunner.query(sql, values);
-      return result;
-    } finally {
-      await queryRunner.release();
-    }
+  private readonly orgRepo: Repository<Organisation>;
+  private readonly userRepo: Repository<User>;
+  private readonly reportRepo: ReportRepository;
+  constructor() {
+    this.orgRepo = AppDataSource.getRepository(Organisation);
+    this.userRepo = AppDataSource.getRepository(User);
+    this.reportRepo = new ReportRepository();
   }
+
+  async getAllReports(params: ReportRequestDto, query: PaginationQuery): Promise<any> {
+    const existOrg = await this.orgRepo.findOne({ where: { Org_Code: params.p_Org_Code, Dflag: 0 } });
+    if (!existOrg) throw new AppError("Organisation not found", 404);
+    const existUser = await this.userRepo.findOne({ where: { userCode: params.p_User_Code, dflag: false } });
+    if (!existUser) throw new AppError("User not found", 404);
+    const page = Math.max(1, query.page ?? 1);
+    const limit = Math.min(100, Math.max(1, query.limit ?? 10));
+    return ReportRepository.getAllReports(params, page, limit);
+  }
+
 }
 
 export default ReportService;
