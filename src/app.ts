@@ -19,7 +19,7 @@ import { corsLogger } from "./utils/cors-logger";
 import { corsErrorHandler, corsMiddleware, handlePreflight } from "./middleware/cors.middleware";
 import otherExpensesRoute from "./routes/other-expenses.route";
 import issuePettyRoute from "./routes/issue-petty.route";
-import pettycashapprovelist from "./routes/pettycashapprovelist.routes";
+import pettycashapprovelist from "./routes/pettycash-approvelist.routes";
 import tripSettelmentRoute from "./routes/trip-settelment.route";
 
 dotenv.config();

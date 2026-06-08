@@ -3,6 +3,7 @@ import { PaginatedResult } from "../dto/pagination.result.dto";
 
 
 const USP_M_Cash_Issue_Trip_DTL = 'CALL USP_M_Cash_Issue_Trip_DTL(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+const USP_T_STATUS_UPDATE_IUD = 'CALL USP_T_STATUS_UPDATE_IUD(?,?,?,?,?,?,?,@p_msg)';
 
 export class PettyCashApproveListRepository {
 
@@ -55,11 +56,8 @@ export class PettyCashApproveListRepository {
 
 
     public async updateStatus(data: any) {
-
         await AppDataSource.query(
-            `CALL USP_T_STATUS_UPDATE_IUD(
-                ?,?,?,?,?,?,?,@p_msg
-            )`,
+            USP_T_STATUS_UPDATE_IUD,
             [
                 data.Action,
                 data.Voucher_No,

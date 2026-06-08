@@ -1,5 +1,3 @@
-// services/pettycashapprovelist.service.ts
-
 import { Repository } from "typeorm";
 import { AppDataSource } from "../config/database";
 import { Organisation } from "../entity/Orgnaisation";
@@ -11,47 +9,28 @@ import { AppError } from "../utils/app.error";
 export class PettyCashApproveListService {
     private readonly orgRepo: Repository<Organisation>;
     private readonly userRepo: Repository<User>;
-    private readonly pettyCashApproveListRepo: PettyCashApproveListRepository;
+    private readonly pettyCashApproveRepo: PettyCashApproveListRepository;
     constructor() {
         this.orgRepo = AppDataSource.getRepository(Organisation);
         this.userRepo = AppDataSource.getRepository(User);
-        this.pettyCashApproveListRepo = new PettyCashApproveListRepository();
+        this.pettyCashApproveRepo = new PettyCashApproveListRepository();
     }
 
-    static async getPettyCashApproveList(data: any, query: PaginationQuery,) {
+    async getPettyCashApproveList(data: any, query: PaginationQuery,) {
         const existOrg = await this.orgRepo.findOne({ where: { Org_Code: data.Org_Code, Dflag: 0 } });
         if (!existOrg) throw new AppError("Organisation not found", 404);
+        const existUser = await this.userRepo.findOne({ where: { userCode: data.User_Code, dflag: false } });
+        if (!existUser) throw new AppError("User not found", 404);
         const page = Math.max(1, query.page ?? 1);
         const limit = Math.min(100, Math.max(1, query.limit ?? 10));
         const search = query.search?.trim() ?? "";
-        return this.pettyCashApproveListRepo.
+        return this.pettyCashApproveRepo.getPettyCashApproveList(data, page, limit, search);
     }
 
 
 
-    static async updateStatus(data: any) {
+    async updateStatus(data: any) {
+        return this.pettyCashApproveRepo.updateStatus(data);
 
-        await AppDataSource.query(
-            `CALL USP_T_STATUS_UPDATE_IUD(
-                ?,?,?,?,?,?,?,@p_msg
-            )`,
-            [
-                data.Action,
-                data.Voucher_No,
-                data.Decline_Reason || '',
-                data.User_Code || '',
-                data.Org_Code || '',
-                data.Created_By,
-                data.Fin_Year || ''
-            ]
-        );
-
-        const msgResult: any = await AppDataSource.query(
-            `SELECT @p_msg AS Message`
-        );
-
-        return {
-            message: msgResult[0].Message
-        };
     }
 }
