@@ -21,6 +21,7 @@ import otherExpensesRoute from "./routes/other-expenses.route";
 import issuePettyRoute from "./routes/issue-petty.route";
 import pettycashapprovelist from "./routes/pettycashapprovelist.routes";
 import tripSettelmentRoute from "./routes/trip-settelment.route";
+import reportRoutes from "./routes/report.routes";
 
 dotenv.config();
 
@@ -60,6 +61,8 @@ app.use("/api/other-expenses", otherExpensesRoute);
 app.use("/api/issue-petty", issuePettyRoute);
 app.use("/api/pettycash", pettycashapprovelist);
 app.use("/api/trip-settelment", tripSettelmentRoute);
+app.use("/api/report", reportRoutes);
+
 
 
 app.use((req: express.Request, res: express.Response) => {
