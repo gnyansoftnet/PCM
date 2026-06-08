@@ -1,7 +1,7 @@
 // controllers/pettycashapprovelist.controller.ts
 
 import { Request, Response } from "express";
-import { PettyCashApproveListService } from "../service/pettycashapprovelist.service";
+import { PettyCashApproveListService } from "../service/pettycash-approvelist.service";
 
 export class PettyCashApproveListController {
 
