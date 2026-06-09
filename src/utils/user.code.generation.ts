@@ -11,7 +11,7 @@ export const generateUserCode = async (orgCode: string): Promise<string> => {
         .where("user.userCode LIKE :code", {
             code: `${orgCode}%`,
         })
-        .orderBy("user.userId", "DESC")
+        .orderBy("user.userCode", "DESC")
         .getOne();
 
     // First user
