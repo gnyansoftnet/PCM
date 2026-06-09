@@ -161,7 +161,7 @@ export class RouteService {
         if (existOrg == null) throw new AppError("Organisation Not Found", 404);
 
         const page = Math.max(1, Number(query.page) || 1);
-        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const skip = (page - 1) * limit;
         const search = query.search?.trim() ?? "";
 
@@ -183,7 +183,6 @@ export class RouteService {
             where: whereClause,
             skip: skip,
             take: limit,
-
             order: { routeId: 'ASC' },
         });
         const uniqueData = Array.from(

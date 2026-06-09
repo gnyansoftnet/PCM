@@ -50,7 +50,7 @@ export class Vehicle {
         name: "Vehicle_Capacity",
         type: "varchar",
         length: 50,
-       
+
 
     })
     vehicleCapacity!: string;
@@ -58,7 +58,7 @@ export class Vehicle {
     @Column({
         name: "Case_Approx",
         type: "int",
-        
+
 
     })
     caseApprox!: number;
@@ -111,7 +111,7 @@ export class Vehicle {
         name: "Dflag",
         type: "int",
         nullable: true,
-        default: false,
+        default: 0,
     })
-    dflag?: boolean;
+    dflag?: number;
 }

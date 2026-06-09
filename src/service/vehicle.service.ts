@@ -50,7 +50,7 @@ export class VehicleService {
         const existvehicle = await this.vehicleRepo.findOne({
             where: {
                 vehicleNo: data.vehicleNo,
-                dflag: false,
+                dflag: 0,
             }
         });
         if (existvehicle) {
@@ -67,7 +67,7 @@ export class VehicleService {
             orgCode: data.orgCode,
             createdBy: data.createdBy,
             finYear: finYear,
-            dflag: false
+            dflag: 0
         });
         return await this.vehicleRepo.save(vehicle);
 
@@ -82,7 +82,7 @@ export class VehicleService {
     ): Promise<Vehicle> {
 
         const existing = await this.vehicleRepo.findOne({
-            where: { vehicleId, dflag: false },
+            where: { vehicleId, dflag: 0 },
         });
 
         if (!existing) {
@@ -130,7 +130,7 @@ export class VehicleService {
     async deleteVehicle(vehicleId: number, modifiedBy: string): Promise<{ message: string }> {
 
         const existing = await this.vehicleRepo.findOne({
-            where: { vehicleId, dflag: false },
+            where: { vehicleId, dflag: 0 },
         });
 
         if (!existing) {
@@ -147,7 +147,7 @@ export class VehicleService {
             throw new AppError('User Not found', 404);
         }
 
-        existing.dflag = true;
+        existing.dflag = 1;
         existing.modifiedBy = modifiedBy;
         await this.vehicleRepo.save(existing);
         return { message: `Vehicle ${vehicleId} deleted successfully.` };
@@ -157,7 +157,7 @@ export class VehicleService {
     async getVehicleById(vehicleId: number): Promise<Vehicle> {
 
         const vehicle = await this.vehicleRepo.findOne({
-            where: { vehicleId, dflag: false },
+            where: { vehicleId, dflag: 0 },
         });
 
         if (!vehicle) {
@@ -168,11 +168,6 @@ export class VehicleService {
 
     }
 
-
-
-
-
-
     async getAllVehiclesByOrgCode(
         orgCode: string,
         query: PaginationQuery,
@@ -182,12 +177,12 @@ export class VehicleService {
         if (existOrg == null) throw new AppError("Organisation Not Found", 404);
 
         const page = Math.max(1, Number(query.page) || 1);
-        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const skip = (page - 1) * limit;
         const search = query.search?.trim() ?? "";
 
         // Base filter always applied
-        const baseWhere = { orgCode, dflag: false as any };
+        const baseWhere = { orgCode: orgCode, dflag: 0 };
 
         // Search across vehicleNo, vehicleType, vModel, vehicleOwnerName, vehicleCapacity
         const whereClause = search
@@ -202,7 +197,7 @@ export class VehicleService {
 
         const [data, total] = await this.vehicleRepo.findAndCount({
             where: whereClause,
-            order: { createdDate: "DESC" },
+            order: { createdDate: "ASC" },
             skip,
             take: limit,
         });
