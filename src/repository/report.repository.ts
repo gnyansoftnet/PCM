@@ -1,12 +1,10 @@
 import { AppDataSource } from "../config/database";
 import { ReportRequestDto } from "../dto/report-request.dto";
 
-
-
-
 const USP_R_ALL_REPORT = 'CALL USP_R_ALL_REPORT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 class ReportRepository {
+
     static async getAllReports(params: ReportRequestDto, page: number,
         limit: number): Promise<any> {
         const values = [

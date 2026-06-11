@@ -5,9 +5,10 @@ import {
     userAccessByUserRole,
     userMenuAccess
 } from "../controller/user.access.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
-
+router.use(authMiddleware);
 // SAVE
 
 router.post(

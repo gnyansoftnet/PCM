@@ -74,7 +74,7 @@ export class PartyService {
     ): Promise<PaginatedResult<any>> {
 
         const page = Math.max(1, Number(query.page) || 1);
-        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const skip = (page - 1) * limit;
         const search = query.search?.trim() ?? "";
 
@@ -95,7 +95,7 @@ export class PartyService {
                 "p.Phone_No AS Phone_No",
                 "p.Email AS Email",
                 "p.SAPERP_Code AS SAPERP_Code",
-                "r.Route_Name AS Route",
+                "r.Route_To AS Route",
                 "p.Route_Id AS Route_Id",
                 "p.Fin_Year AS Fin_Year",
                 "p.Org_Code AS Org_Code",

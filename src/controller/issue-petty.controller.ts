@@ -50,6 +50,30 @@ export class IssuePettyController {
         });
 
     })
+
+
+
+
+    getTotalBalance = asyncHandler(async (req: Request, res: Response) => {
+        const {
+            orgCode
+        } = req.body;
+        this.validate(orgCode, 'orgCode');
+        const result = await this.issuePettyService.getTotalBalance(orgCode);
+        res.status(
+            200
+        ).json({
+            success: true,
+            type: 'SUCCESS',
+            result,
+        });
+
+    })
+
+
+
+
+
     getIssuePettyPrintByVoucherNumber = asyncHandler(async (req: Request, res: Response) => {
         const {
             voucherNumber
@@ -118,8 +142,8 @@ export class IssuePettyController {
             if (action === OperationAction.INSERT) {
                 this.validate(driverName, "driverName");
                 this.validate(issueDate, "issueDate");
-                this.validate(driverId, "driverId");
-                this.validate(vehicleId, "vehicleId");
+                // this.validate(driverId, "driverId");
+                // this.validate(vehicleId, "vehicleId");
                 this.validate(vehicleNo, "vehicleNo");
                 this.validate(remarks, "remarks");
                 this.validate(partyCode, "partyCode");
@@ -137,8 +161,8 @@ export class IssuePettyController {
                 this.validate(driverName, "driverName");
                 this.validate(voucherNo, "voucherNo");
                 this.validate(issueDate, "issueDate");
-                this.validate(driverId, "driverId");
-                this.validate(vehicleId, "vehicleId");
+                // this.validate(driverId, "driverId");
+                // this.validate(vehicleId, "vehicleId");
                 this.validate(vehicleNo, "vehicleNo");
                 this.validate(remarks, "remarks");
                 this.validate(partyCode, "partyCode");

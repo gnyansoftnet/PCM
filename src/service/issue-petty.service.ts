@@ -43,7 +43,11 @@ export class IssuePettyService {
         if (existuser == null) {
             throw new AppError("Created by not found", 404);
         }
-        request.finYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        console.log('driverId:', request.driverId, typeof request.driverId);
+        console.log('vehicleId:', request.vehicleId, typeof request.vehicleId);
+        request.driverId == null ? 0 : request.driverId,
+            request.vehicleId == null ? 0 : request.vehicleId,
+            request.finYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
         const result = this.issuePettyRepo.saveUpdateDeleteIssuePetty(
             request
         );
@@ -62,13 +66,16 @@ export class IssuePettyService {
         const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode, Dflag: 0 } });
         if (!existOrg) throw new AppError("Organisation not found", 404);
         const page = Math.max(1, query.page ?? 1);
-        const limit = Math.min(100, Math.max(1, query.limit ?? 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const search = query.search?.trim() ?? "";
         return this.issuePettyRepo.getAllIssuesPettty(orgCode, userCode, fromDate, toDate, page, limit, search);
     }
 
     async getIssuePettyByVoucherNumber(voucherNumber: string): Promise<any> {
         return this.issuePettyRepo.getIssuePettyByVoucherNumber(voucherNumber);
+    }
+    async getTotalBalance(orgCode: string): Promise<any> {
+        return this.issuePettyRepo.getTotalBalance(orgCode);
     }
     async getIssuePettyPrintByVoucherNumber(voucherNumber: string): Promise<any> {
         return this.issuePettyRepo.getIssuePettyPrintByVoucherNumber(voucherNumber);

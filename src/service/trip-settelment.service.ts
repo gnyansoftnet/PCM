@@ -66,7 +66,7 @@ export class TripSettelmentService {
         const existOrg = await this.orgRepo.findOne({ where: { Org_Code: orgCode, Dflag: 0 } });
         if (!existOrg) throw new AppError("Organisation not found", 404);
         const page = Math.max(1, query.page ?? 1);
-        const limit = Math.min(100, Math.max(1, query.limit ?? 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const search = query.search?.trim() ?? "";
         return this.tripSettelmentRepo.getAllTripSettlement(orgCode, userCode, fromDate, toDate, page, limit, search);
     }

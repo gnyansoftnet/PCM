@@ -14,6 +14,7 @@ router.post("/saveUpdateDeleteIssuePetty", issuePettyController.saveUpdateDelete
 router.get("/getAllIssuesPettty/:orgCode/:userCode", issuePettyController.getAllIssuesPettty.bind(issuePettyController));
 router.post("/getIssuePettyByVoucherNumber", issuePettyController.getIssuePettyByVoucherNumber.bind(issuePettyController));
 router.post("/getIssuePettyPrintByVoucherNumber", issuePettyController.getIssuePettyPrintByVoucherNumber.bind(issuePettyController));
+router.post("/getTotalBalance", issuePettyController.getTotalBalance.bind(issuePettyController));
 router.post("/getPartyByRoutes", issuePettyController.getPartyByRoutes.bind(issuePettyController));
 
 export default router;

@@ -36,7 +36,7 @@ export const getRoleAccessByRoleId = async (
       ?, ?, ?, ?, ?
     )`,
         [
-            'ByRoleId',
+            'ByRoleIdAll',
             Org_Code,
             Role_Id,
             0,

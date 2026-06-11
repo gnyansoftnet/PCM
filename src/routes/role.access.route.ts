@@ -6,11 +6,12 @@ import {
     roleAccessAll,
     saveRoleAccessData
 } from "../controller/role.access.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 
 
 const router = Router();
-
+router.use(authMiddleware);
 router.post(
     "/new-role",
     newRoleAccess
@@ -20,14 +21,7 @@ router.post(
     "/by-role-id",
     roleAccessByRoleId
 );
-router.post(
-    "/by-role-id",
-    roleAccessByRoleId
-);
-router.post(
-    "/by-role-id",
-    roleAccessByRoleId
-);
+
 
 router.post(
     "/menu-by-role",

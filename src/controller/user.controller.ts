@@ -5,6 +5,7 @@ import { CreateUserRequestDto } from "../dto/create-user.request.dto";
 import { generateAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { parseId } from "../utils/parse_id";
 import { asyncHandler } from "../middleware/async-handler";
+import { AppError } from "../utils/app.error";
 
 
 export class UserController {
@@ -147,6 +148,30 @@ export class UserController {
             });
         } catch (error) {
             next(error);
+        }
+    }
+
+    async getSiteHeaders(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { orgCode, branchCode, userCode } = req.body;
+            this.validate("orgCode", orgCode);
+            this.validate("branchCode", branchCode);
+            this.validate("userCode", userCode);
+            const data = await this.userService.siteheaders(orgCode, branchCode, userCode);
+            res.status(200).json({
+                success: true,
+
+                data
+            });
+        } catch (error) {
+            next(error);
+        }
+
+    }
+
+    private validate(value: any, field: string): void {
+        if (value === undefined || value === null || value === '') {
+            throw new AppError(`${field} is required`, 400);
         }
     }
 }

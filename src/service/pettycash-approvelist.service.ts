@@ -22,7 +22,7 @@ export class PettyCashApproveListService {
         const existUser = await this.userRepo.findOne({ where: { userCode: data.User_Code, dflag: false } });
         if (!existUser) throw new AppError("User not found", 404);
         const page = Math.max(1, query.page ?? 1);
-        const limit = Math.min(100, Math.max(1, query.limit ?? 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const search = query.search?.trim() ?? "";
         return this.pettyCashApproveRepo.getPettyCashApproveList(data, page, limit, search);
     }

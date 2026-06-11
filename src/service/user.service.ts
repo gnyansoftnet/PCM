@@ -17,24 +17,29 @@ import { generateUserCode } from "../utils/user.code.generation";
 import { UserStatus } from "../enums/user.status.enum";
 import { PaginationQuery } from "../dto/pagination.query.dto";
 import { PaginatedResult } from "../dto/pagination.result.dto";
+import { UserRepository } from "../repository/user.repository";
 
-const userRepo = AppDataSource.getRepository(User);
-const roleRepo = AppDataSource.getRepository(Role);
-const orgRepo = AppDataSource.getRepository(Organisation);
-const branchRepo = AppDataSource.getRepository(Branch);
+
+
 
 
 
 export class UserService {
     private orgRepo: Repository<Organisation>;
+    private roleRepo: Repository<Role>;
     private userRepo: Repository<User>;
+    private branchRepo: Repository<Branch>;
+    private readonly userRepository: UserRepository;
     constructor() {
         this.orgRepo = AppDataSource.getRepository(Organisation);
         this.userRepo = AppDataSource.getRepository(User);
+        this.branchRepo = AppDataSource.getRepository(Branch);
+        this.roleRepo = AppDataSource.getRepository(Role);
+        this.userRepository = new UserRepository();
     }
 
     async loginUser(body: LoginRequestDto): Promise<LoginResponseDto> {
-        const user = await userRepo.findOne({
+        const user = await this.userRepo.findOne({
             where: {
                 name: body.name,
                 dflag: false,
@@ -79,7 +84,7 @@ export class UserService {
 
     async createUser(body: CreateUserRequestDto): Promise<UserResponseDto> {
 
-        const existingUser = await userRepo.findOne({
+        const existingUser = await this.userRepo.findOne({
             where: {
                 name: body.name,
                 dflag: false,
@@ -89,7 +94,7 @@ export class UserService {
             throw new AppError("Username already exists", 401);
         }
 
-        const existRole = await roleRepo.findOne({
+        const existRole = await this.roleRepo.findOne({
             where: {
                 roleId: body.userType,
                 dflag: false,
@@ -102,7 +107,7 @@ export class UserService {
         }
 
 
-        const existOrg = await orgRepo.findOne({
+        const existOrg = await this.orgRepo.findOne({
             where: {
                 Org_Code: body.orgCode,
                 Dflag: 0,
@@ -115,7 +120,7 @@ export class UserService {
         }
 
 
-        const existBranch = await branchRepo.findOne({
+        const existBranch = await this.branchRepo.findOne({
             where: {
                 Branch_Code: body.branchCode,
                 Dflag: false,
@@ -134,7 +139,7 @@ export class UserService {
         const userCode = await generateUserCode(existOrg.Org_ShortName);
 
 
-        const user = userRepo.create({
+        const user = this.userRepo.create({
             roleId: body.userType,
             userCode: userCode,
             name: body.name,
@@ -149,7 +154,7 @@ export class UserService {
 
         });
 
-        const savedUser = await userRepo.save(user);
+        const savedUser = await this.userRepo.save(user);
 
         return {
             userId: savedUser.userId,
@@ -173,7 +178,7 @@ export class UserService {
         userId: number,
         body: CreateUserRequestDto
     ): Promise<UserResponseDto> {
-        const user = await userRepo.findOne({
+        const user = await this.userRepo.findOne({
             where: { userId: userId, dflag: false, }
         });
 
@@ -181,7 +186,7 @@ export class UserService {
             throw new AppError("User not found", 404);
         }
 
-        const existingUser = await userRepo.findOne({
+        const existingUser = await this.userRepo.findOne({
             where: {
                 name: body.name
             }
@@ -191,7 +196,7 @@ export class UserService {
             throw new AppError("Username already exists", 401);
         }
 
-        const existRole = await roleRepo.findOne({
+        const existRole = await this.roleRepo.findOne({
             where: {
                 roleId: body.userType
             }
@@ -201,7 +206,7 @@ export class UserService {
             throw new AppError("User type not found", 402);
         }
 
-        const existOrg = await orgRepo.findOne({
+        const existOrg = await this.orgRepo.findOne({
             where: {
                 Org_Code: body.orgCode
             }
@@ -211,7 +216,7 @@ export class UserService {
             throw new AppError("Organisation not found", 402);
         }
 
-        const existBranch = await branchRepo.findOne({
+        const existBranch = await this.branchRepo.findOne({
             where: {
                 Branch_Code: body.branchCode
             }
@@ -235,7 +240,7 @@ export class UserService {
         //     user.password = await hashPassword(body.password);
         // }
 
-        const updatedUser = await userRepo.save(user);
+        const updatedUser = await this.userRepo.save(user);
 
         return {
             userId: updatedUser.userId,
@@ -260,7 +265,7 @@ export class UserService {
     ): Promise<PaginatedResult<User>> {
 
         const page = Math.max(1, Number(query.page) || 1);
-        const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+        const limit = Math.max(1, Number(query.limit) || 10);
         const skip = (page - 1) * limit;
         const search = query.search?.trim() ?? "";
 
@@ -282,7 +287,7 @@ export class UserService {
                 dflag: false
             };
 
-        const [data, total] = await userRepo.findAndCount({
+        const [data, total] = await this.userRepo.findAndCount({
             where: whereClause,
             skip,
             take: limit,
@@ -306,7 +311,7 @@ export class UserService {
         };
     }
     async getUsersById(userId: number) {
-        return await userRepo.find({
+        return await this.userRepo.find({
             where: {
                 userId: userId,
                 dflag: false,
@@ -316,7 +321,7 @@ export class UserService {
     }
 
     async deleteUser(userId: number): Promise<string> {
-        const user = await userRepo.findOne({
+        const user = await this.userRepo.findOne({
             where: {
                 userId,
                 dflag: false,
@@ -328,8 +333,43 @@ export class UserService {
         }
 
         user.dflag = true;
-        await roleRepo.save(user);
+        await this.userRepo.save(user);
         return "User deleted successfully";
+    }
+
+
+    async siteheaders(orgCode: string, branchCode: string, userCode: string): Promise<any> {
+        const existOrg = await this.orgRepo.findOne({
+            where: {
+                Org_Code: orgCode
+            }
+        });
+
+        if (!existOrg) {
+            throw new AppError("Organisation not found", 402);
+        }
+
+        const existBranch = await this.branchRepo.findOne({
+            where: {
+                Branch_Code: branchCode
+            }
+        });
+
+        if (!existBranch) {
+            throw new AppError("Branch not found", 402);
+        }
+        const existuser = await this.userRepo.findOne({
+            where: {
+                userCode: userCode
+            }
+        });
+
+        if (!existuser) {
+            throw new AppError("Branch not found", 402);
+        }
+        return this.userRepository.getSiteHeaders(orgCode, branchCode, userCode);
+
+
     }
 
 

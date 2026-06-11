@@ -15,5 +15,6 @@ router.get("/getVehicleById/:id", userController.getUserById.bind(userController
 router.post("/createUser", userController.createUser.bind(userController));
 router.put("/updateUser/:userId", userController.updateUser.bind(userController));
 router.delete("/deleteUserById/:id", userController.deleteUser.bind(userController));
+router.post("/getSiteHeaders", userController.getSiteHeaders.bind(userController));
 
 export default router;

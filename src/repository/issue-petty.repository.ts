@@ -93,6 +93,8 @@ export class IssuePettyRepository {
             );
         }
     }
+
+    
     public async getIssuePettyByVoucherNumber(
         voucherNo: string
     ): Promise<any> {
@@ -139,6 +141,31 @@ export class IssuePettyRepository {
             );
             const [issueDetails, party, routes] = data ?? {};
             return { issueDetails, party, routes };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(
+                `[USP_M_Cash_Issue_Trip_DTL] failed: ${error.message}`, 500
+            );
+        }
+    }
+    public async getTotalBalance(
+        orgCode: string
+    ): Promise<any> {
+        try {
+            const data = await AppDataSource.query(
+                USP_M_Cash_Issue_Trip_DTL,
+                ["GET_TOTAL_BALANCE",
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    orgCode, null,
+                    null, null,
+                    null, null
+                ]
+            );
+            return data[0][0] ?? { TotalBalance: 0 };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
             throw new AppError(
